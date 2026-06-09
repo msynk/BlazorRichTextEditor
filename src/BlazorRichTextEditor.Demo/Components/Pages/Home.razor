@@ -1,0 +1,49 @@
+﻿@page "/"
+
+<PageTitle>BlazorRichTextEditor demo</PageTitle>
+
+<div class="demo">
+    <header>
+        <h1>BlazorRichTextEditor</h1>
+        <p>A native rich text editor component for Blazor. Two-way bound to an HTML string.</p>
+    </header>
+
+    <section>
+        <h2>Editor</h2>
+        <BlazorRichTextEditor @bind-Value="_html" Placeholder="Start writing — try the toolbar, lists, links, and paste..." Height="260px" />
+    </section>
+
+    <section>
+        <div class="row">
+            <div class="col">
+                <h2>Live HTML (<code>&#64;bind-Value</code>)</h2>
+                <pre class="code">@_html</pre>
+            </div>
+            <div class="col">
+                <h2>Rendered output</h2>
+                <div class="preview">@((MarkupString)_html)</div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Other configurations</h2>
+        <h3>Minimal toolbar (inline + lists only)</h3>
+        <BlazorRichTextEditor @bind-Value="_html2" Toolbar="BlazorRichTextEditorToolbar.Inline | BlazorRichTextEditorToolbar.Lists" Height="120px"
+                   Placeholder="A trimmed-down toolbar..." />
+
+        <h3 class="mt">Read-only</h3>
+        <BlazorRichTextEditor Value="@_readonlyContent" ReadOnly="true" ShowToolbar="false" Height="auto" />
+    </section>
+</div>
+
+@code {
+    private string _html = "<h2>Welcome 👋</h2><p>This editor is <strong>bound</strong> to a C# string. " +
+        "Edit me, then watch the HTML on the left update.</p><ul><li>Bullet and numbered lists</li>" +
+        "<li>Headings, quotes, code blocks</li><li>Links, alignment, undo/redo</li></ul>";
+
+    private string _html2 = "<p>Try <em>inline</em> formatting here.</p>";
+
+    private readonly string _readonlyContent =
+        "<p>This instance is <strong>read-only</strong> with the toolbar hidden — useful for displaying stored content.</p>";
+}

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="BlazorRichTextEditor/BlazorRichTextEditor.csproj" />
+  <Project Path="BlazorRichTextEditor.Demo/BlazorRichTextEditor.Demo.csproj" />
+</Solution>

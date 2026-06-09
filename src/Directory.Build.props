@@ -1,0 +1,24 @@
+<Project>
+
+  <!-- Shared build settings for all BlazorRichTextEditor projects. -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Allow missing XML doc comments without failing the build. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package metadata">
+    <Authors>BlazorRichTextEditor</Authors>
+    <Product>BlazorRichTextEditor</Product>
+    <Description>A native rich text editor component for Blazor.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/msynk/BlazorRichTextEditor</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>0.1.0-dev</Version>
+  </PropertyGroup>
+
+</Project>

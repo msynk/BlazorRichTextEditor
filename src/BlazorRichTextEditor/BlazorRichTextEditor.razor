@@ -1,0 +1,113 @@
+@namespace BlazorRichTextEditor
+
+<div class="blazor-rte @CssClass" style="@Style">
+    @if (ShowToolbar)
+    {
+        <div class="blazor-rte-toolbar" role="toolbar" aria-label="Formatting">
+
+            @if (Has(BlazorRichTextEditorToolbar.History))
+            {
+                <div class="blazor-rte-group">
+                    <button type="button" class="blazor-rte-btn" title="Undo (Ctrl+Z)" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick="UndoAsync">↶</button>
+                    <button type="button" class="blazor-rte-btn" title="Redo (Ctrl+Y)" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick="RedoAsync">↷</button>
+                </div>
+            }
+
+            @if (Has(BlazorRichTextEditorToolbar.BlockFormat))
+            {
+                <div class="blazor-rte-group">
+                    <select class="blazor-rte-select" title="Paragraph format" disabled="@ReadOnly"
+                            value="@_state.Block" @onchange="OnBlockFormatChanged">
+                        <option value="p">Normal</option>
+                        <option value="h1">Heading 1</option>
+                        <option value="h2">Heading 2</option>
+                        <option value="h3">Heading 3</option>
+                    </select>
+                </div>
+            }
+
+            @if (Has(BlazorRichTextEditorToolbar.Inline))
+            {
+                <div class="blazor-rte-group">
+                    <button type="button" class="blazor-rte-btn @(_state.Bold ? "active" : "")" title="Bold (Ctrl+B)" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("bold")'><b>B</b></button>
+                    <button type="button" class="blazor-rte-btn @(_state.Italic ? "active" : "")" title="Italic (Ctrl+I)" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("italic")'><i>I</i></button>
+                    <button type="button" class="blazor-rte-btn @(_state.Underline ? "active" : "")" title="Underline (Ctrl+U)" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("underline")'><u>U</u></button>
+                    <button type="button" class="blazor-rte-btn @(_state.StrikeThrough ? "active" : "")" title="Strikethrough" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("strikeThrough")'><s>S</s></button>
+                </div>
+            }
+
+            @if (Has(BlazorRichTextEditorToolbar.Lists))
+            {
+                <div class="blazor-rte-group">
+                    <button type="button" class="blazor-rte-btn @(_state.UnorderedList ? "active" : "")" title="Bullet list" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("insertUnorderedList")'>•≣</button>
+                    <button type="button" class="blazor-rte-btn @(_state.OrderedList ? "active" : "")" title="Numbered list" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("insertOrderedList")'>1≣</button>
+                </div>
+            }
+
+            @if (Has(BlazorRichTextEditorToolbar.Blocks))
+            {
+                <div class="blazor-rte-group">
+                    <button type="button" class="blazor-rte-btn @(_state.Block == "blockquote" ? "active" : "")" title="Quote" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => FormatBlockToggleAsync("blockquote")'>❝</button>
+                    <button type="button" class="blazor-rte-btn @(_state.Block == "pre" ? "active" : "")" title="Code block" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => FormatBlockToggleAsync("pre")'>&lt;/&gt;</button>
+                </div>
+            }
+
+            @if (Has(BlazorRichTextEditorToolbar.Link))
+            {
+                <div class="blazor-rte-group">
+                    <button type="button" class="blazor-rte-btn" title="Insert link" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick="ToggleLinkInput">🔗</button>
+                    <button type="button" class="blazor-rte-btn" title="Remove link" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("unlink")'>⛓</button>
+                </div>
+            }
+
+            @if (Has(BlazorRichTextEditorToolbar.Alignment))
+            {
+                <div class="blazor-rte-group">
+                    <button type="button" class="blazor-rte-btn @(_state.JustifyLeft ? "active" : "")" title="Align left" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("justifyLeft")'>⯇</button>
+                    <button type="button" class="blazor-rte-btn @(_state.JustifyCenter ? "active" : "")" title="Align center" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("justifyCenter")'>≡</button>
+                    <button type="button" class="blazor-rte-btn @(_state.JustifyRight ? "active" : "")" title="Align right" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("justifyRight")'>⯈</button>
+                </div>
+            }
+
+            @if (Has(BlazorRichTextEditorToolbar.Clear))
+            {
+                <div class="blazor-rte-group">
+                    <button type="button" class="blazor-rte-btn" title="Clear formatting" disabled="@ReadOnly"
+                            @onmousedown:preventDefault="true" @onclick="ClearFormattingAsync">⌫</button>
+                </div>
+            }
+        </div>
+
+        @if (_showLinkInput)
+        {
+            <div class="blazor-rte-linkbar">
+                <input type="url" class="blazor-rte-linkinput" placeholder="https://example.com"
+                       @bind="_linkUrl" @bind:event="oninput"
+                       @onkeydown="OnLinkKeyDown" />
+                <button type="button" class="blazor-rte-btn" @onclick="ApplyLinkAsync">Apply</button>
+                <button type="button" class="blazor-rte-btn" @onclick="ToggleLinkInput">Cancel</button>
+            </div>
+        }
+    }
+
+    <div class="blazor-rte-content @(_isEmpty ? "blazor-rte-empty" : "")"
+         @ref="_editor"
+         contenteditable="@((!ReadOnly).ToString().ToLowerInvariant())"
+         data-placeholder="@Placeholder"
+         style="min-height:@Height"></div>
+</div>
