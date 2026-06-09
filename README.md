@@ -1,6 +1,6 @@
 # BlazorRichTextEditor
 
-**A native rich text editor component for Blazor** — a drop-in WYSIWYG editor in the
+**A native rich text editor component for Blazor** - a drop-in WYSIWYG editor in the
 spirit of Quill and TinyMCE. Toolbar plus editable surface, two-way bound to an HTML
 string, with all component logic in C# and a deliberately thin JavaScript bridge for the
 browser-only concerns (`contenteditable` events, formatting commands, selection).

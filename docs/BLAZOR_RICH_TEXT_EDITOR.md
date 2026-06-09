@@ -1,4 +1,4 @@
-# BlazorRichTextEditor — a practical rich text editor component for Blazor
+# BlazorRichTextEditor - a practical rich text editor component for Blazor
 
 A drop-in WYSIWYG editor in the spirit of Quill and TinyMCE: a toolbar plus an editable
 surface, two-way bound to an HTML string. Built for Blazor, usable in one line.
@@ -36,8 +36,8 @@ A truly "no JavaScript" Blazor editor is therefore not possible. Even commercial
 editors and the popular `Blazored.TextEditor` (a Quill wrapper) rely on JS underneath.
 
 BlazorRichTextEditor keeps the JS deliberately **thin and focused** (Microsoft's own JS interop
-guidance: use small, focused interop in specific spots). All component logic — state,
-binding, toolbar, configuration — lives in C#. JavaScript only:
+guidance: use small, focused interop in specific spots). All component logic - state,
+binding, toolbar, configuration - lives in C#. JavaScript only:
 
 1. wires DOM events (`input`, `selectionchange`, `paste`, `blur`) and forwards them to
    .NET, and

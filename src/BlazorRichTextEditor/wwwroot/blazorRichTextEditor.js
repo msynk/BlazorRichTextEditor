@@ -1,4 +1,4 @@
-// BlazorRichTextEditor — thin JS bridge.
+// BlazorRichTextEditor - thin JS bridge.
 // Owns nothing but DOM events, formatting commands, and selection. All component
 // logic lives in C#. execCommand is isolated here so it can be swapped later.
 
