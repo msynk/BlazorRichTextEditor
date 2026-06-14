@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.8" />
+    <PackageReference Include="Markdig" Version="0.37.0" />
+    <PackageReference Include="ReverseMarkdown" Version="4.6.0" />
   </ItemGroup>
 
 </Project>

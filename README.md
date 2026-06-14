@@ -18,13 +18,27 @@ browser-only concerns (`contenteditable` events, formatting commands, selection)
 ## Features
 
 - Formatting toolbar: bold, italic, underline, strikethrough; H1–H3 / paragraph;
-  bullet and numbered lists; blockquote and code block; links and unlink; alignment;
-  undo/redo; clear formatting.
-- Two-way binding of HTML via `@bind-Value`.
-- Live toolbar state (active buttons reflect the cursor's formatting).
-- Read-only mode, placeholder text, configurable toolbar groups (`BlazorRichTextEditorToolbar` flags),
-  height, and theming hooks.
-- Paste cleanup (strips scripts and event-handler attributes) as a first line of defense.
+  bullet and numbered lists; blockquote and code block; links (insert/edit/remove);
+  alignment; undo/redo; clear formatting.
+- **Images**: insert by URL, drag-and-drop, and clipboard paste, with an `OnImageUpload`
+  callback (data-URL fallback) and in-place resize.
+- **Text & highlight color**, **font family/size**, **indent/outdent**, **subscript/superscript**.
+- **Tables** (insert, add/remove rows & columns, merge cells, column resize), **media embeds**
+  (YouTube/Vimeo/video/audio), and **horizontal rules**.
+- **HTML source view** toggle with sanitize-on-exit.
+- **Allowlist sanitization** (`SanitizationPolicy`) applied to paste, drag-drop, source view,
+  and programmatic content; word-processor paste normalization and plain-text paste.
+- **EditForm integration** (`EditContext`/validation messages), **character/word count** with
+  optional `MaxLength`.
+- **Accessibility**: `aria-label`/`aria-pressed` on controls and a roving-tabindex toolbar.
+- **Keyboard shortcuts** (configurable via `KeyboardShortcuts`), **Markdown typing shortcuts**
+  and a **slash command menu**, **emoji/special-character picker**, **find & replace**,
+  **full-screen mode**.
+- **Custom toolbar items & ordering** (`ToolbarConfig`), **Markdown output mode** (`Format`),
+  **theming tokens + dark mode** (`Theme`), and **RTL/localization** (`Direction`, `Localizer`).
+- Two-way binding of content via `@bind-Value` (HTML or Markdown).
+- Live toolbar state, read-only mode, placeholder text, configurable toolbar groups
+  (`BlazorRichTextEditorToolbar` flags; use `AllExtended` for everything), height, and theming hooks.
 - Imperative API: `FocusAsync()`, `GetHtmlAsync()`, `ExecuteCommandAsync(...)`.
 
 ## Setup

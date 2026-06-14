@@ -10,7 +10,13 @@
 
     <section>
         <h2>Editor</h2>
-        <BlazorRichTextEditor @bind-Value="_html" Placeholder="Start writing - try the toolbar, lists, links, and paste..." Height="260px" />
+        <BlazorRichTextEditor @bind-Value="_html"
+                              Toolbar="BlazorRichTextEditorToolbar.AllExtended"
+                              ShowCount="true"
+                              MaxLength="5000"
+                              OnImageUpload="HandleImageUpload"
+                              Placeholder="Start writing - try images, tables, color, source view, find & replace..."
+                              Height="280px" />
     </section>
 
     <section>
@@ -34,6 +40,15 @@
 
         <h3 class="mt">Read-only</h3>
         <BlazorRichTextEditor Value="@_readonlyContent" ReadOnly="true" ShowToolbar="false" Height="auto" />
+
+        <h3 class="mt">Dark theme + Markdown output</h3>
+        <BlazorRichTextEditor @bind-Value="_markdown"
+                              Toolbar="BlazorRichTextEditorToolbar.AllExtended"
+                              Theme="RichTextTheme.Dark"
+                              Format="RichTextFormat.Markdown"
+                              Placeholder="Bound value is Markdown..."
+                              Height="160px" />
+        <pre class="code">@_markdown</pre>
     </section>
 </div>
 
@@ -44,6 +59,16 @@
 
     private string _html2 = "<p>Try <em>inline</em> formatting here.</p>";
 
+    private string _markdown = "# Markdown mode\n\nType here and the bound value updates as **Markdown**.";
+
     private readonly string _readonlyContent =
         "<p>This instance is <strong>read-only</strong> with the toolbar hidden - useful for displaying stored content.</p>";
+
+    // Demo upload handler: echoes the image back as a data URL. A real app would persist the
+    // bytes and return a hosted URL.
+    private Task<string?> HandleImageUpload(RichTextImageUpload image)
+    {
+        var dataUrl = $"data:{image.ContentType};base64,{Convert.ToBase64String(image.Content)}";
+        return Task.FromResult<string?>(dataUrl);
+    }
 }

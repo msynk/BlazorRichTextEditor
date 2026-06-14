@@ -1,95 +1,12 @@
 @namespace BlazorRichTextEditor
 
-<div class="blazor-rte @CssClass" style="@Style">
+<div class="blazor-rte @CssClass @(_fullScreen ? "blazor-rte-fullscreen" : "")" style="@Style" dir="@RootDir" data-theme="@ThemeAttr">
     @if (ShowToolbar)
     {
-        <div class="blazor-rte-toolbar" role="toolbar" aria-label="Formatting">
-
-            @if (Has(BlazorRichTextEditorToolbar.History))
+        <div class="blazor-rte-toolbar" role="toolbar" aria-label="Formatting" @ref="_toolbar">
+            @foreach (var id in OrderedToolbarIds())
             {
-                <div class="blazor-rte-group">
-                    <button type="button" class="blazor-rte-btn" title="Undo (Ctrl+Z)" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick="UndoAsync">↶</button>
-                    <button type="button" class="blazor-rte-btn" title="Redo (Ctrl+Y)" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick="RedoAsync">↷</button>
-                </div>
-            }
-
-            @if (Has(BlazorRichTextEditorToolbar.BlockFormat))
-            {
-                <div class="blazor-rte-group">
-                    <select class="blazor-rte-select" title="Paragraph format" disabled="@ReadOnly"
-                            value="@_state.Block" @onchange="OnBlockFormatChanged">
-                        <option value="p">Normal</option>
-                        <option value="h1">Heading 1</option>
-                        <option value="h2">Heading 2</option>
-                        <option value="h3">Heading 3</option>
-                    </select>
-                </div>
-            }
-
-            @if (Has(BlazorRichTextEditorToolbar.Inline))
-            {
-                <div class="blazor-rte-group">
-                    <button type="button" class="blazor-rte-btn @(_state.Bold ? "active" : "")" title="Bold (Ctrl+B)" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("bold")'><b>B</b></button>
-                    <button type="button" class="blazor-rte-btn @(_state.Italic ? "active" : "")" title="Italic (Ctrl+I)" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("italic")'><i>I</i></button>
-                    <button type="button" class="blazor-rte-btn @(_state.Underline ? "active" : "")" title="Underline (Ctrl+U)" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("underline")'><u>U</u></button>
-                    <button type="button" class="blazor-rte-btn @(_state.StrikeThrough ? "active" : "")" title="Strikethrough" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("strikeThrough")'><s>S</s></button>
-                </div>
-            }
-
-            @if (Has(BlazorRichTextEditorToolbar.Lists))
-            {
-                <div class="blazor-rte-group">
-                    <button type="button" class="blazor-rte-btn @(_state.UnorderedList ? "active" : "")" title="Bullet list" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("insertUnorderedList")'>•≣</button>
-                    <button type="button" class="blazor-rte-btn @(_state.OrderedList ? "active" : "")" title="Numbered list" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("insertOrderedList")'>1≣</button>
-                </div>
-            }
-
-            @if (Has(BlazorRichTextEditorToolbar.Blocks))
-            {
-                <div class="blazor-rte-group">
-                    <button type="button" class="blazor-rte-btn @(_state.Block == "blockquote" ? "active" : "")" title="Quote" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => FormatBlockToggleAsync("blockquote")'>❝</button>
-                    <button type="button" class="blazor-rte-btn @(_state.Block == "pre" ? "active" : "")" title="Code block" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => FormatBlockToggleAsync("pre")'>&lt;/&gt;</button>
-                </div>
-            }
-
-            @if (Has(BlazorRichTextEditorToolbar.Link))
-            {
-                <div class="blazor-rte-group">
-                    <button type="button" class="blazor-rte-btn" title="Insert link" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick="ToggleLinkInput">🔗</button>
-                    <button type="button" class="blazor-rte-btn" title="Remove link" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("unlink")'>⛓</button>
-                </div>
-            }
-
-            @if (Has(BlazorRichTextEditorToolbar.Alignment))
-            {
-                <div class="blazor-rte-group">
-                    <button type="button" class="blazor-rte-btn @(_state.JustifyLeft ? "active" : "")" title="Align left" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("justifyLeft")'>⯇</button>
-                    <button type="button" class="blazor-rte-btn @(_state.JustifyCenter ? "active" : "")" title="Align center" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("justifyCenter")'>≡</button>
-                    <button type="button" class="blazor-rte-btn @(_state.JustifyRight ? "active" : "")" title="Align right" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick='() => ExecAsync("justifyRight")'>⯈</button>
-                </div>
-            }
-
-            @if (Has(BlazorRichTextEditorToolbar.Clear))
-            {
-                <div class="blazor-rte-group">
-                    <button type="button" class="blazor-rte-btn" title="Clear formatting" disabled="@ReadOnly"
-                            @onmousedown:preventDefault="true" @onclick="ClearFormattingAsync">⌫</button>
-                </div>
+                @RenderGroup(id)
             }
         </div>
 
@@ -100,14 +17,313 @@
                        @bind="_linkUrl" @bind:event="oninput"
                        @onkeydown="OnLinkKeyDown" />
                 <button type="button" class="blazor-rte-btn" @onclick="ApplyLinkAsync">Apply</button>
+                @if (_state.InLink)
+                {
+                    <button type="button" class="blazor-rte-btn" @onclick="RemoveLinkAsync">Remove</button>
+                }
                 <button type="button" class="blazor-rte-btn" @onclick="ToggleLinkInput">Cancel</button>
             </div>
         }
+
+        @if (_showImageInput)
+        {
+            <div class="blazor-rte-linkbar">
+                <input type="url" class="blazor-rte-linkinput" placeholder="https://example.com/image.png"
+                       @bind="_imageUrl" @bind:event="oninput" />
+                <button type="button" class="blazor-rte-btn" @onclick="ApplyImageUrlAsync">Insert</button>
+                <button type="button" class="blazor-rte-btn" @onclick="ToggleImageInput">Cancel</button>
+            </div>
+        }
+
+        @if (_showMediaInput)
+        {
+            <div class="blazor-rte-linkbar">
+                <input type="url" class="blazor-rte-linkinput" placeholder="https://youtube.com/watch?v=..."
+                       @bind="_mediaUrl" @bind:event="oninput" />
+                <button type="button" class="blazor-rte-btn" @onclick="ApplyMediaAsync">Embed</button>
+                <button type="button" class="blazor-rte-btn" @onclick="ToggleMediaInput">Cancel</button>
+            </div>
+        }
+
+        @if (_showFind)
+        {
+            <div class="blazor-rte-linkbar">
+                <input type="text" class="blazor-rte-linkinput" placeholder="Find"
+                       @bind="_findTerm" @bind:event="oninput" @bind:after="RunFindAsync" />
+                <input type="text" class="blazor-rte-linkinput" placeholder="Replace with"
+                       @bind="_replaceTerm" @bind:event="oninput" />
+                <label class="blazor-rte-find-opt"><input type="checkbox" @bind="_findCaseSensitive" @bind:after="RunFindAsync" /> Aa</label>
+                <span class="blazor-rte-find-count">@_findCount</span>
+                <button type="button" class="blazor-rte-btn" @onclick="ReplaceCurrentAsync">Replace</button>
+                <button type="button" class="blazor-rte-btn" @onclick="ReplaceAllAsync">All</button>
+                <button type="button" class="blazor-rte-btn" @onclick="ToggleFind">Close</button>
+            </div>
+        }
+
+        @if (_showEmoji)
+        {
+            <div class="blazor-rte-emoji-panel">
+                <input type="text" class="blazor-rte-linkinput" placeholder="Search"
+                       @bind="_emojiSearch" @bind:event="oninput" />
+                <div class="blazor-rte-emoji-grid">
+                    @foreach (var emo in FilteredEmoji())
+                    {
+                        <button type="button" class="blazor-rte-emoji" title="@emo.Name"
+                                @onmousedown:preventDefault="true" @onclick="() => InsertEmojiAsync(emo.Char)">@emo.Char</button>
+                    }
+                    @if (!FilteredEmoji().Any())
+                    {
+                        <span class="blazor-rte-emoji-empty">No matches</span>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (_inlineError is not null)
+        {
+            <div class="blazor-rte-error" role="alert">@_inlineError</div>
+        }
+    }
+
+    @if (_showSlash)
+    {
+        <div class="blazor-rte-slash" role="listbox">
+            <input type="text" class="blazor-rte-linkinput" placeholder="Filter commands…"
+                   @bind="_slashFilter" @bind:event="oninput"
+                   @onkeydown="@(e => { if (e.Key == "Escape") CloseSlash(); })" />
+            @foreach (var c in FilteredSlash())
+            {
+                <button type="button" class="blazor-rte-slash-item" role="option"
+                        @onmousedown:preventDefault="true" @onclick="() => ApplySlashAsync(c.Command)">@c.Label</button>
+            }
+            @if (!FilteredSlash().Any())
+            {
+                <div class="blazor-rte-emoji-empty">No matching command</div>
+            }
+        </div>
     }
 
     <div class="blazor-rte-content @(_isEmpty ? "blazor-rte-empty" : "")"
          @ref="_editor"
-         contenteditable="@((!ReadOnly).ToString().ToLowerInvariant())"
+         contenteditable="@((!ReadOnly && !_inSourceView).ToString().ToLowerInvariant())"
          data-placeholder="@Placeholder"
+         hidden="@_inSourceView"
          style="min-height:@Height"></div>
+
+    @if (_inSourceView)
+    {
+        <textarea class="blazor-rte-source" style="min-height:@Height"
+                  spellcheck="false"
+                  value="@_sourceText" @oninput="OnSourceTextChanged"></textarea>
+    }
+
+    @if (ShowCount)
+    {
+        <div class="blazor-rte-count">
+            @_facts.WordCount words · @_facts.CharacterCount@(MaxLength is int max ? $"/{max}" : "") chars
+            @if (MaxLength is int m && _facts.CharacterCount >= m)
+            {
+                <span class="blazor-rte-count-over">limit reached</span>
+            }
+        </div>
+    }
 </div>
+
+@code {
+    private bool ControlsDisabled => ReadOnly || _inSourceView;
+
+    private RenderFragment RenderGroup(string id) => builder =>
+    {
+        switch (id)
+        {
+            case "history": builder.AddContent(0, HistoryGroup); break;
+            case "blockformat": builder.AddContent(0, BlockFormatGroup); break;
+            case "font": builder.AddContent(0, FontGroup); break;
+            case "inline": builder.AddContent(0, InlineGroup); break;
+            case "color": builder.AddContent(0, ColorGroup); break;
+            case "script": builder.AddContent(0, ScriptGroup); break;
+            case "lists": builder.AddContent(0, ListsGroup); break;
+            case "indent": builder.AddContent(0, IndentGroup); break;
+            case "blocks": builder.AddContent(0, BlocksGroup); break;
+            case "link": builder.AddContent(0, LinkGroup); break;
+            case "media": builder.AddContent(0, MediaGroup); break;
+            case "image": builder.AddContent(0, ImageGroup); break;
+            case "table": builder.AddContent(0, TableGroup); break;
+            case "rule": builder.AddContent(0, RuleGroup); break;
+            case "alignment": builder.AddContent(0, AlignmentGroup); break;
+            case "direction": builder.AddContent(0, DirectionGroup); break;
+            case "emoji": builder.AddContent(0, EmojiGroup); break;
+            case "find": builder.AddContent(0, FindGroup); break;
+            case "source": builder.AddContent(0, SourceGroup); break;
+            case "fullscreen": builder.AddContent(0, FullScreenGroup); break;
+            case "clear": builder.AddContent(0, ClearGroup); break;
+            default: RenderCustomItem(builder, id); break;
+        }
+    };
+
+    private RenderFragment HistoryGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="UndoAsync">↶</button>
+        <button type="button" class="blazor-rte-btn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="RedoAsync">↷</button>
+    </div>;
+
+    private RenderFragment BlockFormatGroup => @<div class="blazor-rte-group">
+        <select class="blazor-rte-select" title="Paragraph format" aria-label="Paragraph format" disabled="@ControlsDisabled"
+                value="@_state.Block" @onchange="OnBlockFormatChanged">
+            <option value="p">Normal</option>
+            <option value="h1">Heading 1</option>
+            <option value="h2">Heading 2</option>
+            <option value="h3">Heading 3</option>
+        </select>
+    </div>;
+
+    private RenderFragment FontGroup => @<div class="blazor-rte-group">
+        <select class="blazor-rte-select" title="Font family" aria-label="Font family" disabled="@ControlsDisabled"
+                value="@(_state.FontName ?? "")" @onchange="@(e => ApplyFontAsync("name", e))">
+            <option value="">Font</option>
+            @foreach (var f in EffectiveFontFamilies)
+            {
+                <option value="@f">@f</option>
+            }
+        </select>
+        <select class="blazor-rte-select" title="Font size" aria-label="Font size" disabled="@ControlsDisabled"
+                value="@(_state.FontSize ?? "")" @onchange="@(e => ApplyFontAsync("size", e))">
+            <option value="">Size</option>
+            @foreach (var s in EffectiveFontSizes)
+            {
+                <option value="@s">@s</option>
+            }
+        </select>
+    </div>;
+
+    private RenderFragment InlineGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_state.Bold ? "active" : "")" title="Bold (Ctrl+B)" aria-label="Bold" aria-pressed="@_state.Bold" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => ExecAsync("bold")'><b>B</b></button>
+        <button type="button" class="blazor-rte-btn @(_state.Italic ? "active" : "")" title="Italic (Ctrl+I)" aria-label="Italic" aria-pressed="@_state.Italic" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => ExecAsync("italic")'><i>I</i></button>
+        <button type="button" class="blazor-rte-btn @(_state.Underline ? "active" : "")" title="Underline (Ctrl+U)" aria-label="Underline" aria-pressed="@_state.Underline" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => ExecAsync("underline")'><u>U</u></button>
+        <button type="button" class="blazor-rte-btn @(_state.StrikeThrough ? "active" : "")" title="Strikethrough" aria-label="Strikethrough" aria-pressed="@_state.StrikeThrough" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => ExecAsync("strikeThrough")'><s>S</s></button>
+    </div>;
+
+    private RenderFragment ColorGroup => @<div class="blazor-rte-group">
+        <label class="blazor-rte-color" title="Text color">
+            <span>A</span>
+            <input type="color" aria-label="Text color" disabled="@ControlsDisabled"
+                   @onchange="@(e => ApplyColorAsync("fore", e))" />
+        </label>
+        <label class="blazor-rte-color blazor-rte-color-bg" title="Highlight color">
+            <span>🖍</span>
+            <input type="color" aria-label="Highlight color" disabled="@ControlsDisabled"
+                   @onchange="@(e => ApplyColorAsync("back", e))" />
+        </label>
+    </div>;
+
+    private RenderFragment ScriptGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_state.Subscript ? "active" : "")" title="Subscript" aria-label="Subscript" aria-pressed="@_state.Subscript" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="SubscriptAsync">X₂</button>
+        <button type="button" class="blazor-rte-btn @(_state.Superscript ? "active" : "")" title="Superscript" aria-label="Superscript" aria-pressed="@_state.Superscript" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="SuperscriptAsync">X²</button>
+    </div>;
+
+    private RenderFragment ListsGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_state.UnorderedList ? "active" : "")" title="Bullet list" aria-label="Bullet list" aria-pressed="@_state.UnorderedList" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => ExecAsync("insertUnorderedList")'>•≣</button>
+        <button type="button" class="blazor-rte-btn @(_state.OrderedList ? "active" : "")" title="Numbered list" aria-label="Numbered list" aria-pressed="@_state.OrderedList" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => ExecAsync("insertOrderedList")'>1≣</button>
+    </div>;
+
+    private RenderFragment IndentGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn" title="Decrease indent" aria-label="Decrease indent" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="OutdentAsync">⇤</button>
+        <button type="button" class="blazor-rte-btn" title="Increase indent" aria-label="Increase indent" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="IndentAsync">⇥</button>
+    </div>;
+
+    private RenderFragment BlocksGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_state.Block == "blockquote" ? "active" : "")" title="Quote" aria-label="Block quote" aria-pressed="@(_state.Block == "blockquote")" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => FormatBlockToggleAsync("blockquote")'>❝</button>
+        <button type="button" class="blazor-rte-btn @(_state.Block == "pre" ? "active" : "")" title="Code block" aria-label="Code block" aria-pressed="@(_state.Block == "pre")" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => FormatBlockToggleAsync("pre")'>&lt;/&gt;</button>
+    </div>;
+
+    private RenderFragment LinkGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_state.InLink ? "active" : "")" title="Insert/edit link" aria-label="Insert or edit link" aria-pressed="@_state.InLink" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="ToggleLinkInput">🔗</button>
+        <button type="button" class="blazor-rte-btn" title="Remove link" aria-label="Remove link" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="RemoveLinkAsync">⛓</button>
+    </div>;
+
+    private RenderFragment MediaGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn" title="Embed media" aria-label="Embed media" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="ToggleMediaInput">▶</button>
+    </div>;
+
+    private RenderFragment ImageGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn" title="Insert image" aria-label="Insert image" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="ToggleImageInput">🖼</button>
+    </div>;
+
+    private RenderFragment TableGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn" title="Insert 2×2 table" aria-label="Insert table" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="() => InsertTableAsync(2, 2)">▦</button>
+        <button type="button" class="blazor-rte-btn" title="Add row" aria-label="Add row" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => TableOpAsync("addRow")'>+R</button>
+        <button type="button" class="blazor-rte-btn" title="Add column" aria-label="Add column" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => TableOpAsync("addCol")'>+C</button>
+        <button type="button" class="blazor-rte-btn" title="Delete row" aria-label="Delete row" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => TableOpAsync("delRow")'>−R</button>
+        <button type="button" class="blazor-rte-btn" title="Delete column" aria-label="Delete column" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => TableOpAsync("delCol")'>−C</button>
+        <button type="button" class="blazor-rte-btn" title="Merge cells" aria-label="Merge cells" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => TableOpAsync("merge")'>⊟</button>
+    </div>;
+
+    private RenderFragment RuleGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn" title="Horizontal rule" aria-label="Horizontal rule" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="InsertRuleAsync">―</button>
+    </div>;
+
+    private RenderFragment AlignmentGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_state.JustifyLeft ? "active" : "")" title="Align left" aria-label="Align left" aria-pressed="@_state.JustifyLeft" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => ExecAsync("justifyLeft")'>⯇</button>
+        <button type="button" class="blazor-rte-btn @(_state.JustifyCenter ? "active" : "")" title="Align center" aria-label="Align center" aria-pressed="@_state.JustifyCenter" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => ExecAsync("justifyCenter")'>≡</button>
+        <button type="button" class="blazor-rte-btn @(_state.JustifyRight ? "active" : "")" title="Align right" aria-label="Align right" aria-pressed="@_state.JustifyRight" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => ExecAsync("justifyRight")'>⯈</button>
+    </div>;
+
+    private RenderFragment DirectionGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_state.Direction == "ltr" ? "active" : "")" title="Left-to-right" aria-label="Left to right" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => SetDirectionAsync("ltr")'>⇄</button>
+        <button type="button" class="blazor-rte-btn @(_state.Direction == "rtl" ? "active" : "")" title="Right-to-left" aria-label="Right to left" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick='() => SetDirectionAsync("rtl")'>⇆</button>
+    </div>;
+
+    private RenderFragment EmojiGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_showEmoji ? "active" : "")" title="Emoji" aria-label="Insert emoji" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="ToggleEmoji">☺</button>
+    </div>;
+
+    private RenderFragment FindGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_showFind ? "active" : "")" title="Find & replace" aria-label="Find and replace" disabled="@ReadOnly"
+                @onmousedown:preventDefault="true" @onclick="ToggleFind">🔍</button>
+    </div>;
+
+    private RenderFragment SourceGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_inSourceView ? "active" : "")" title="HTML source" aria-label="HTML source view" aria-pressed="@_inSourceView" disabled="@ReadOnly"
+                @onmousedown:preventDefault="true" @onclick="ToggleSourceViewAsync">&lt;/&gt;</button>
+    </div>;
+
+    private RenderFragment FullScreenGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn @(_fullScreen ? "active" : "")" title="Full screen" aria-label="Toggle full screen"
+                @onmousedown:preventDefault="true" @onclick="ToggleFullScreen">⛶</button>
+    </div>;
+
+    private RenderFragment ClearGroup => @<div class="blazor-rte-group">
+        <button type="button" class="blazor-rte-btn" title="Clear formatting" aria-label="Clear formatting" disabled="@ControlsDisabled"
+                @onmousedown:preventDefault="true" @onclick="ClearFormattingAsync">⌫</button>
+    </div>;
+}

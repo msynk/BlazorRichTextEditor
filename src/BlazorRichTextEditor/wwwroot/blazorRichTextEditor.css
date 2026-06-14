@@ -1,11 +1,65 @@
 .blazor-rte {
-    border: 1px solid #d0d7de;
-    border-radius: 8px;
+    /* Theming tokens (Req 29) — override any of these from host CSS. */
+    --rte-border: #d0d7de;
+    --rte-radius: 8px;
+    --rte-bg: #fff;
+    --rte-fg: #1f2328;
+    --rte-toolbar-bg: #fafbfc;
+    --rte-toolbar-border: #e3e7eb;
+    --rte-group-border: #e8eaed;
+    --rte-btn-fg: #24292f;
+    --rte-btn-hover-bg: #eceef1;
+    --rte-active-bg: #dbeafe;
+    --rte-active-border: #bcd7fb;
+    --rte-active-fg: #0b4ea2;
+    --rte-focus: #0969da;
+    --rte-placeholder: #9aa4af;
+    --rte-bar-bg: #f3f6fb;
+    --rte-code-bg: #f6f8fa;
+    --rte-quote-border: #d0d7de;
+    --rte-quote-fg: #57606a;
+    --rte-error-bg: #fdecea;
+    --rte-error-fg: #b42318;
+    --rte-error-border: #f5c2bd;
+    --rte-spacing: .5rem;
+
+    border: 1px solid var(--rte-border);
+    border-radius: var(--rte-radius);
     overflow: hidden;
     font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: #fff;
+    background: var(--rte-bg);
     display: flex;
     flex-direction: column;
+}
+
+.blazor-rte[data-theme="dark"] {
+    --rte-border: #30363d;
+    --rte-bg: #0d1117;
+    --rte-fg: #e6edf3;
+    --rte-toolbar-bg: #161b22;
+    --rte-toolbar-border: #30363d;
+    --rte-group-border: #30363d;
+    --rte-btn-fg: #e6edf3;
+    --rte-btn-hover-bg: #21262d;
+    --rte-active-bg: #1f3a5f;
+    --rte-active-border: #2f5a92;
+    --rte-active-fg: #cae3ff;
+    --rte-focus: #58a6ff;
+    --rte-placeholder: #6e7681;
+    --rte-bar-bg: #161b22;
+    --rte-code-bg: #161b22;
+    --rte-quote-border: #30363d;
+    --rte-quote-fg: #8b949e;
+    --rte-error-bg: #3a1c1c;
+    --rte-error-fg: #ff7b72;
+    --rte-error-border: #5a2a2a;
+}
+
+.blazor-rte-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    border-radius: 0;
 }
 
 .blazor-rte-toolbar {
@@ -13,9 +67,12 @@
     flex-wrap: wrap;
     align-items: center;
     gap: .25rem;
-    padding: .35rem .5rem;
-    border-bottom: 1px solid #e3e7eb;
-    background: #fafbfc;
+    padding: .35rem var(--rte-spacing);
+    border-bottom: 1px solid var(--rte-toolbar-border);
+    background: var(--rte-toolbar-bg);
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }
 
 .blazor-rte-group {
@@ -23,7 +80,7 @@
     gap: .15rem;
     padding-right: .35rem;
     margin-right: .15rem;
-    border-right: 1px solid #e8eaed;
+    border-right: 1px solid var(--rte-group-border);
 }
 .blazor-rte-group:last-child { border-right: none; }
 
@@ -34,7 +91,7 @@
     border: 1px solid transparent;
     border-radius: 6px;
     background: transparent;
-    color: #24292f;
+    color: var(--rte-btn-fg);
     font-size: .95rem;
     line-height: 1;
     cursor: pointer;
@@ -42,35 +99,104 @@
     align-items: center;
     justify-content: center;
 }
-.blazor-rte-btn:hover:not(:disabled) { background: #eceef1; }
-.blazor-rte-btn.active { background: #dbeafe; border-color: #bcd7fb; color: #0b4ea2; }
+.blazor-rte-btn:hover:not(:disabled) { background: var(--rte-btn-hover-bg); }
+.blazor-rte-btn.active { background: var(--rte-active-bg); border-color: var(--rte-active-border); color: var(--rte-active-fg); }
 .blazor-rte-btn:disabled { opacity: .45; cursor: default; }
+.blazor-rte-btn:focus-visible,
+.blazor-rte-select:focus-visible { outline: 2px solid var(--rte-focus); outline-offset: 1px; }
 
 .blazor-rte-select {
     height: 30px;
-    border: 1px solid #d0d7de;
+    border: 1px solid var(--rte-border);
     border-radius: 6px;
-    background: #fff;
+    background: var(--rte-bg);
+    color: var(--rte-fg);
     padding: 0 .4rem;
     font-size: .85rem;
     cursor: pointer;
+}
+
+.blazor-rte-color {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 .25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    gap: 2px;
+}
+.blazor-rte-color:hover { background: var(--rte-btn-hover-bg); }
+.blazor-rte-color input[type="color"] {
+    width: 20px; height: 20px; border: none; background: none; padding: 0; cursor: pointer;
 }
 
 .blazor-rte-linkbar {
     display: flex;
     gap: .35rem;
     align-items: center;
-    padding: .4rem .5rem;
-    border-bottom: 1px solid #e3e7eb;
-    background: #f3f6fb;
+    padding: .4rem var(--rte-spacing);
+    border-bottom: 1px solid var(--rte-toolbar-border);
+    background: var(--rte-bar-bg);
 }
 .blazor-rte-linkinput {
     flex: 1;
+    min-width: 60px;
     height: 30px;
-    border: 1px solid #cdd5dd;
+    border: 1px solid var(--rte-border);
     border-radius: 6px;
     padding: 0 .55rem;
     font-size: .88rem;
+    background: var(--rte-bg);
+    color: var(--rte-fg);
+}
+.blazor-rte-find-opt { font-size: .8rem; display: inline-flex; align-items: center; gap: 2px; }
+.blazor-rte-find-count { font-size: .8rem; color: var(--rte-quote-fg); min-width: 4rem; }
+
+.blazor-rte-emoji-panel {
+    padding: .4rem var(--rte-spacing);
+    border-bottom: 1px solid var(--rte-toolbar-border);
+    background: var(--rte-bar-bg);
+}
+.blazor-rte-emoji-grid {
+    display: flex; flex-wrap: wrap; gap: .15rem; margin-top: .35rem; max-height: 140px; overflow-y: auto;
+}
+.blazor-rte-emoji {
+    width: 30px; height: 30px; border: 1px solid transparent; border-radius: 6px;
+    background: transparent; font-size: 1.1rem; cursor: pointer;
+}
+.blazor-rte-emoji:hover { background: var(--rte-btn-hover-bg); }
+.blazor-rte-emoji-empty { font-size: .82rem; color: var(--rte-quote-fg); padding: .25rem; }
+
+.blazor-rte-error {
+    padding: .35rem .6rem;
+    background: var(--rte-error-bg);
+    color: var(--rte-error-fg);
+    border-bottom: 1px solid var(--rte-error-border);
+    font-size: .82rem;
+}
+
+.blazor-rte-count {
+    padding: .25rem .6rem;
+    border-top: 1px solid var(--rte-toolbar-border);
+    background: var(--rte-toolbar-bg);
+    color: var(--rte-quote-fg);
+    font-size: .78rem;
+    text-align: right;
+}
+.blazor-rte-count-over { color: var(--rte-error-fg); margin-left: .4rem; font-weight: 600; }
+
+.blazor-rte-source {
+    width: 100%;
+    border: none;
+    outline: none;
+    resize: vertical;
+    padding: .85rem 1rem;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: .85rem;
+    line-height: 1.5;
+    background: var(--rte-code-bg);
+    color: var(--rte-fg);
+    box-sizing: border-box;
 }
 
 .blazor-rte-content {
@@ -78,14 +204,14 @@
     outline: none;
     overflow-y: auto;
     line-height: 1.6;
-    color: #1f2328;
+    color: var(--rte-fg);
     flex: 1;
 }
 .blazor-rte-content:focus { outline: none; }
 
 .blazor-rte-content.blazor-rte-empty::before {
     content: attr(data-placeholder);
-    color: #9aa4af;
+    color: var(--rte-placeholder);
     pointer-events: none;
 }
 
@@ -98,11 +224,11 @@
 .blazor-rte-content blockquote {
     margin: 0 0 .6rem;
     padding: .25rem 1rem;
-    border-left: 4px solid #d0d7de;
-    color: #57606a;
+    border-left: 4px solid var(--rte-quote-border);
+    color: var(--rte-quote-fg);
 }
 .blazor-rte-content pre {
-    background: #f6f8fa;
+    background: var(--rte-code-bg);
     border-radius: 6px;
     padding: .75rem 1rem;
     overflow-x: auto;
@@ -110,5 +236,49 @@
     font-size: .9rem;
 }
 .blazor-rte-content ul, .blazor-rte-content ol { padding-left: 1.5rem; margin: 0 0 .6rem; }
-.blazor-rte-content a { color: #0969da; }
+.blazor-rte-content a { color: var(--rte-focus); }
 .blazor-rte-content img { max-width: 100%; }
+.blazor-rte-content table.blazor-rte-table,
+.blazor-rte-content table {
+    border-collapse: collapse;
+    margin: 0 0 .6rem;
+}
+.blazor-rte-content td, .blazor-rte-content th {
+    border: 1px solid var(--rte-border);
+    padding: .3rem .5rem;
+    min-width: 2rem;
+}
+.blazor-rte-content hr {
+    border: none;
+    border-top: 2px solid var(--rte-border);
+    margin: .8rem 0;
+}
+.blazor-rte-content iframe, .blazor-rte-content video { max-width: 100%; }
+.blazor-rte-content mark.blazor-rte-find {
+    background: #fde047;
+    color: inherit;
+}
+
+.blazor-rte-slash {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: .35rem;
+    border: 1px solid var(--rte-border);
+    border-radius: 6px;
+    background: var(--rte-bg);
+    margin: .25rem var(--rte-spacing);
+    box-shadow: 0 4px 14px rgba(0,0,0,.12);
+    max-width: 260px;
+}
+.blazor-rte-slash-item {
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: var(--rte-fg);
+    padding: .3rem .5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: .88rem;
+}
+.blazor-rte-slash-item:hover { background: var(--rte-btn-hover-bg); }

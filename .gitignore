@@ -29,3 +29,6 @@ TestResults/
 coverage/
 *.coverage
 *.trx
+
+#kiro
+.kiro

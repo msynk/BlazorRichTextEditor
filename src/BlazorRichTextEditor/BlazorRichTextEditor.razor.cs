@@ -49,22 +49,28 @@ public partial class BlazorRichTextEditor : ComponentBase, IAsyncDisposable
     /// <summary>Raised when the editor loses focus.</summary>
     [Parameter] public EventCallback OnBlur { get; set; }
 
+    /// <summary>Raised when the editor encounters a recoverable error (invalid input, etc.).</summary>
+    [Parameter] public EventCallback<RichTextError> OnError { get; set; }
+
     private ElementReference _editor;
     private IJSObjectReference? _module;
     private DotNetObjectReference<BlazorRichTextEditor>? _dotNetRef;
     private BlazorRichTextEditorSelectionState _state = new();
+    private RichTextContentFacts _facts;
     private string _currentHtml = "";
+    private string _currentValue = "";
     private bool _initialized;
     private bool _isEmpty = true;
 
-    private bool _showLinkInput;
-    private string _linkUrl = "";
+    /// <summary>Transient inline error message shown in the editor chrome.</summary>
+    private string? _inlineError;
 
     private bool Has(BlazorRichTextEditorToolbar group) => Toolbar.HasFlag(group);
 
     protected override void OnParametersSet()
     {
-        _isEmpty = IsContentEmpty(Value);
+        // Until the JS bridge reports facts, fall back to a cheap string check.
+        if (!_initialized) _isEmpty = IsContentEmptyFallback(Value);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -74,34 +80,56 @@ public partial class BlazorRichTextEditor : ComponentBase, IAsyncDisposable
             _module = await JS.InvokeAsync<IJSObjectReference>(
                 "import", "./_content/BlazorRichTextEditor/blazorRichTextEditor.js");
             _dotNetRef = DotNetObjectReference.Create(this);
-            _currentHtml = Value ?? "";
+            _currentValue = Value ?? "";
+            _currentHtml = ToSurfaceHtml(Value);
             await _module.InvokeVoidAsync("initialize", _editor, _dotNetRef,
-                new { debounce = DebounceMs });
+                new
+                {
+                    debounce = DebounceMs,
+                    policy = BuildPolicyPayload(),
+                    hasUpload = OnImageUpload is not null,
+                    plainTextPaste = PasteAsPlainText,
+                    maxLength = MaxLength
+                });
+            if (ShowToolbar)
+                await _module.InvokeVoidAsync("enableToolbarRoving", _toolbar);
             if (!string.IsNullOrEmpty(_currentHtml))
                 await _module.InvokeVoidAsync("setHtml", _editor, _currentHtml);
             _initialized = true;
         }
-        else if (_initialized && _module is not null && (Value ?? "") != _currentHtml)
+        else if (_initialized && _module is not null && !_inSourceView && (Value ?? "") != _currentValue)
         {
             // External/programmatic change to Value: reflect it without disturbing typing.
-            _currentHtml = Value ?? "";
-            await _module.InvokeVoidAsync("setHtml", _editor, _currentHtml);
+            _currentValue = Value ?? "";
+            var html = ToSurfaceHtml(Value);
+            if (SanitizationPolicy is not null && !string.IsNullOrEmpty(html))
+                html = await _module.InvokeAsync<string>("sanitizeHtml", _editor, html);
+            _currentHtml = html;
+            await _module.InvokeVoidAsync("setHtml", _editor, html);
         }
     }
 
     // ---- callbacks from JS ----
 
     [JSInvokable]
-    public async Task OnContentChanged(string html)
+    public async Task OnContentChanged(string html, RichTextContentFacts facts)
     {
         _currentHtml = html;
-        var empty = IsContentEmpty(html);
+        _facts = facts;
+        var empty = facts.IsEmpty;
         if (empty != _isEmpty)
         {
             _isEmpty = empty;
             StateHasChanged();
         }
-        await ValueChanged.InvokeAsync(html);
+        else if (ShowCount)
+        {
+            StateHasChanged();
+        }
+        var bound = ToBoundValue(html);
+        _currentValue = bound;
+        NotifyEditContextChanged();
+        await ValueChanged.InvokeAsync(bound);
     }
 
     [JSInvokable]
@@ -117,6 +145,11 @@ public partial class BlazorRichTextEditor : ComponentBase, IAsyncDisposable
     [JSInvokable]
     public async Task OnBlurred() => await OnBlur.InvokeAsync();
 
+    /// <summary>Reported by the bridge when a formatting command fails; content is unchanged.</summary>
+    [JSInvokable]
+    public async Task OnCommandError(string command, string message)
+        => await RaiseErrorAsync(new RichTextError("command-failed", $"Command '{command}' failed: {message}"));
+
     // ---- commands ----
 
     private async Task ExecAsync(string command, string? value = null)
@@ -129,36 +162,22 @@ public partial class BlazorRichTextEditor : ComponentBase, IAsyncDisposable
     private Task RedoAsync() => ExecAsync("redo");
 
     private Task OnBlockFormatChanged(ChangeEventArgs e)
-        => ExecAsync("formatBlock", e.Value?.ToString() ?? "p");
+        => ExecBlockAsync(e.Value?.ToString() ?? "p");
+
+    private async Task ExecBlockAsync(string tag)
+    {
+        if (ReadOnly || _module is null) return;
+        await _module.InvokeVoidAsync("execBlock", _editor, tag);
+    }
 
     private Task FormatBlockToggleAsync(string tag)
-        => ExecAsync("formatBlock", _state.Block == tag ? "p" : tag);
+        => ExecBlockAsync(_state.Block == tag ? "p" : tag);
 
     private async Task ClearFormattingAsync()
     {
         if (ReadOnly || _module is null) return;
         await _module.InvokeVoidAsync("exec", _editor, "removeFormat", null);
-        await _module.InvokeVoidAsync("exec", _editor, "formatBlock", "p");
-    }
-
-    private void ToggleLinkInput()
-    {
-        _showLinkInput = !_showLinkInput;
-        if (!_showLinkInput) _linkUrl = "";
-    }
-
-    private async Task ApplyLinkAsync()
-    {
-        if (!string.IsNullOrWhiteSpace(_linkUrl) && _module is not null)
-            await _module.InvokeVoidAsync("createLink", _editor, _linkUrl.Trim());
-        _showLinkInput = false;
-        _linkUrl = "";
-    }
-
-    private async Task OnLinkKeyDown(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter") await ApplyLinkAsync();
-        else if (e.Key == "Escape") ToggleLinkInput();
+        await _module.InvokeVoidAsync("execBlock", _editor, "p");
     }
 
     // ---- imperative API ----
@@ -178,9 +197,33 @@ public partial class BlazorRichTextEditor : ComponentBase, IAsyncDisposable
 
     // ---- helpers ----
 
-    private static bool IsContentEmpty(string? html)
+    private async Task RaiseErrorAsync(RichTextError error)
+    {
+        _inlineError = error.Message;
+        StateHasChanged();
+        await OnError.InvokeAsync(error);
+    }
+
+    private void ClearInlineError()
+    {
+        if (_inlineError is not null)
+        {
+            _inlineError = null;
+            StateHasChanged();
+        }
+    }
+
+    private static bool IsContentEmptyFallback(string? html)
     {
         if (string.IsNullOrWhiteSpace(html)) return true;
+        if (html.Contains("<img", StringComparison.OrdinalIgnoreCase)
+            || html.Contains("<table", StringComparison.OrdinalIgnoreCase)
+            || html.Contains("<hr", StringComparison.OrdinalIgnoreCase)
+            || html.Contains("<video", StringComparison.OrdinalIgnoreCase)
+            || html.Contains("<audio", StringComparison.OrdinalIgnoreCase)
+            || html.Contains("<iframe", StringComparison.OrdinalIgnoreCase))
+            return false;
+
         var stripped = html
             .Replace("<br>", "").Replace("<br/>", "").Replace("<br />", "")
             .Replace("&nbsp;", "").Replace("\u00a0", "");
@@ -206,6 +249,7 @@ public partial class BlazorRichTextEditor : ComponentBase, IAsyncDisposable
             }
         }
         catch (JSDisconnectedException) { /* circuit gone; nothing to clean up */ }
+        catch (OperationCanceledException) { /* shutting down */ }
         _dotNetRef?.Dispose();
     }
 }
