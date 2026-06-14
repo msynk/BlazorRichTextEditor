@@ -1,0 +1,52 @@
+@page "/find-and-fullscreen"
+
+<PageTitle>Find &amp; full screen</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Productivity</span>
+        <h1>Find &amp; replace, full screen</h1>
+        <p class="lead">Search and replace text within the editor, and expand to a distraction-free full-screen
+            view.</p>
+    </header>
+
+    <section>
+        <h2>Find &amp; replace</h2>
+        <p>The <code class="inline">Find</code> group adds a search panel with find-next and replace
+            (single/all) over the editor content.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="220px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Find | BlazorRichTextEditorToolbar.Inline)"
+                                  Placeholder="Open find & replace and search this text..." />
+        </div>
+
+        <CodeSample Code="@_findCode" />
+    </section>
+
+    <section>
+        <h2>Full-screen mode</h2>
+        <p>The <code class="inline">FullScreen</code> group adds a toggle that expands the editor to fill the
+            viewport for focused writing, and collapses it back.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html2" Height="160px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.FullScreen | BlazorRichTextEditorToolbar.All)"
+                                  Placeholder="Toggle full screen from the toolbar..." />
+        </div>
+
+        <CodeSample Code="@_fsCode" />
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>The quick brown fox jumps over the lazy dog. The fox is quick.</p>";
+    private string _html2 = "<p>Expand me to full screen and write without distractions.</p>";
+
+    private const string _findCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      Toolbar=""BlazorRichTextEditorToolbar.Find"" />";
+
+    private const string _fsCode = @"<BlazorRichTextEditor @bind-Value=""html""
+    Toolbar=""@(BlazorRichTextEditorToolbar.All
+             | BlazorRichTextEditorToolbar.FullScreen)"" />";
+}

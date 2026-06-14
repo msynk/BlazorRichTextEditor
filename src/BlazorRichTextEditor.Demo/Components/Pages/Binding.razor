@@ -1,0 +1,88 @@
+@page "/binding"
+
+<PageTitle>Two-way binding</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Start here</span>
+        <h1>Two-way binding</h1>
+        <p class="lead">The editor's content is a plain string you own. <code class="inline">@@bind-Value</code>
+            keeps it in sync both ways: edits flow out, and programmatic changes flow back in.</p>
+    </header>
+
+    <section>
+        <h2>Edits flow out</h2>
+        <p>As you type, <code class="inline">ValueChanged</code> fires (debounced) and your bound field updates.
+            The live HTML and rendered preview below react instantly.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="180px"
+                                  Placeholder="Edit me and watch the value update..." />
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h3>Bound value</h3>
+                <pre class="code">@_html</pre>
+            </div>
+            <div class="col">
+                <h3>Rendered output</h3>
+                <div class="preview">@((MarkupString)_html)</div>
+            </div>
+        </div>
+
+        <CodeSample Code="@_outCode" />
+    </section>
+
+    <section>
+        <h2>Changes flow back in</h2>
+        <p>Set the bound field from code and the editor reflects it - without disturbing an in-progress caret
+            when the value is unchanged. Try these buttons:</p>
+
+        <div class="demo-box">
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;">
+                <button class="btn" @onclick='() => _html = "<h3>Set from code</h3><p>The editor just updated.</p>"'>Set content</button>
+                <button class="btn" @onclick='() => _html = string.Empty'>Clear</button>
+                <button class="btn" @onclick='() => _html += "<p>Appended paragraph.</p>"'>Append</button>
+            </div>
+            <BlazorRichTextEditor @bind-Value="_html" Height="160px" />
+        </div>
+
+        <CodeSample Code="@_inCode" />
+
+        <div class="note">
+            The component only pushes HTML into the DOM when the incoming value actually differs from what the
+            editor already holds, so typing is never interrupted by re-binding.
+        </div>
+    </section>
+
+    <section>
+        <h2>Debouncing change notifications</h2>
+        <p>While typing, change notifications are debounced. Tune the window with
+            <code class="inline">DebounceMs</code> (default <code class="inline">200</code>). A larger value
+            means fewer <code class="inline">ValueChanged</code> events; a smaller value updates the bound value
+            more eagerly.</p>
+
+        <CodeSample Code="@_debCode" />
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>The bound value is just a <strong>string</strong> you own.</p>";
+
+    private const string _outCode = @"<BlazorRichTextEditor @bind-Value=""html"" />
+
+<pre>@html</pre>
+<div>@((MarkupString)html)</div>
+
+@code {
+    private string html = ""<p>...</p>"";
+}";
+
+    private const string _inCode = @"<button @onclick=""@(() => html = &quot;<h3>Set from code</h3>&quot;)"">Set</button>
+<button @onclick=""@(() => html = string.Empty)"">Clear</button>
+
+<BlazorRichTextEditor @bind-Value=""html"" />";
+
+    private const string _debCode = @"<BlazorRichTextEditor @bind-Value=""html"" DebounceMs=""400"" />";
+}

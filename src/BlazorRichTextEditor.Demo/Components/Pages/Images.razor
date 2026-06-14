@@ -1,0 +1,63 @@
+@page "/images"
+
+<PageTitle>Images</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Editing</span>
+        <h1>Images</h1>
+        <p class="lead">Insert images by URL, drag-and-drop, or clipboard paste. Provide an
+            <code class="inline">OnImageUpload</code> callback to persist bytes and return a hosted URL, or
+            fall back to inline data URLs.</p>
+    </header>
+
+    <section>
+        <h2>Upload callback</h2>
+        <p>When you drop or paste an image, the editor invokes <code class="inline">OnImageUpload</code> with the
+            file name, content type, and raw bytes. Return a URL to embed, or <code class="inline">null</code> to
+            cancel. Without the callback, images are embedded as inline <code class="inline">data:</code> URLs.
+            Inserted images can be resized in place.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="220px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Image | BlazorRichTextEditorToolbar.Inline)"
+                                  OnImageUpload="HandleImageUpload"
+                                  Placeholder="Drop or paste an image, or use the image button..." />
+            @if (_lastUpload is not null)
+            {
+                <p style="color:#57606a;font-size:.9rem;margin:.5rem 0 0;">Last upload: <strong>@_lastUpload</strong></p>
+            }
+        </div>
+
+        <CodeSample Title="C#" Code="@_handlerCode" />
+        <CodeSample Code="@_usageCode" />
+
+        <div class="note warn">
+            The demo handler echoes the image back as a data URL so the sample is self-contained. A real app
+            should persist the bytes (blob storage, disk, CDN) and return the hosted URL instead.
+        </div>
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>Images can sit inline with text.</p>";
+    private string? _lastUpload;
+
+    private Task<string?> HandleImageUpload(RichTextImageUpload image)
+    {
+        _lastUpload = $"{image.FileName} ({image.ContentType}, {image.Content.Length:N0} bytes)";
+        var dataUrl = $"data:{image.ContentType};base64,{Convert.ToBase64String(image.Content)}";
+        return Task.FromResult<string?>(dataUrl);
+    }
+
+    private const string _handlerCode = @"private async Task<string?> HandleImageUpload(RichTextImageUpload image)
+{
+    // image.FileName, image.ContentType, image.Content (byte[])
+    var url = await _storage.SaveAsync(image.FileName, image.Content);
+    return url; // return null to cancel the insert
+}";
+
+    private const string _usageCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      Toolbar=""BlazorRichTextEditorToolbar.Image""
+                      OnImageUpload=""HandleImageUpload"" />";
+}

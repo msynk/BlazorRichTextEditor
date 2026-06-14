@@ -1,0 +1,77 @@
+@page "/source-and-sanitization"
+
+<PageTitle>Source &amp; sanitization</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Toolbar &amp; output</span>
+        <h1>Source view &amp; sanitization</h1>
+        <p class="lead">Toggle a raw HTML view, and control exactly which tags, attributes, and URI schemes
+            survive paste, drag-drop, source edits, and programmatic content.</p>
+    </header>
+
+    <section>
+        <h2>HTML source view</h2>
+        <p>The <code class="inline">Source</code> group toggles a raw HTML editor. On exit, the HTML is run
+            through the active sanitization policy before returning to the WYSIWYG surface.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="220px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Source | BlazorRichTextEditorToolbar.All)"
+                                  Placeholder="Toggle the source view from the toolbar..." />
+        </div>
+
+        <CodeSample Code="@_sourceCode" />
+    </section>
+
+    <section>
+        <h2>Allowlist sanitization</h2>
+        <p>Sanitization is allowlist-based: only the listed tags, attributes, and URI schemes are kept;
+            everything else is stripped. It runs on paste, drag-drop, source-view exit, and programmatic
+            <code class="inline">Value</code> changes. The secure
+            <code class="inline">RichTextSanitizationPolicy.Default</code> applies unless you override it.</p>
+
+        <CodeSample Title="C#" Code="@_policyCode" />
+        <CodeSample Code="@_policyUsage" />
+
+        <div class="note warn">
+            Sanitization in the browser is a first line of defense, not the last. Always
+            <strong>sanitize the emitted HTML server-side</strong> (for example with HtmlSanitizer) before
+            storing or redisplaying it.
+        </div>
+    </section>
+
+    <section>
+        <h2>Plain-text paste</h2>
+        <p>Set <code class="inline">PasteAsPlainText="true"</code> to strip all formatting from pasted content
+            and insert it as plain text.</p>
+        <CodeSample Code="@_plainCode" />
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>Switch to <strong>source view</strong> to see and edit the raw HTML.</p>";
+
+    private const string _sourceCode = @"<BlazorRichTextEditor @bind-Value=""html""
+    Toolbar=""@(BlazorRichTextEditorToolbar.All
+             | BlazorRichTextEditorToolbar.Source)"" />";
+
+    private const string _policyCode = @"var policy = new RichTextSanitizationPolicy
+{
+    AllowedTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        { ""p"", ""br"", ""strong"", ""em"", ""a"", ""ul"", ""ol"", ""li"" },
+    AllowedAttributes = new Dictionary<string, ISet<string>>(StringComparer.OrdinalIgnoreCase)
+    {
+        [""*""] = new HashSet<string> { ""class"" },
+        [""a""] = new HashSet<string> { ""href"", ""title"" },
+    },
+    AllowedUriSchemes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        { ""http"", ""https"", ""mailto"" },
+    AllowDataImageUris = false,
+};";
+
+    private const string _policyUsage = @"<BlazorRichTextEditor @bind-Value=""html""
+                      SanitizationPolicy=""policy"" />";
+
+    private const string _plainCode = @"<BlazorRichTextEditor @bind-Value=""html"" PasteAsPlainText=""true"" />";
+}

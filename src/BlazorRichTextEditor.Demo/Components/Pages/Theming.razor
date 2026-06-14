@@ -1,0 +1,84 @@
+@page "/theming"
+
+<PageTitle>Theming, RTL &amp; i18n</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Integration</span>
+        <h1>Theming, RTL &amp; localization</h1>
+        <p class="lead">Switch between light, dark, and system themes; set text direction for RTL languages; and
+            translate the control labels.</p>
+    </header>
+
+    <section>
+        <h2>Theme</h2>
+        <p>The <code class="inline">Theme</code> parameter accepts <code class="inline">System</code> (default -
+            follows host CSS / OS preference), <code class="inline">Light</code>, or
+            <code class="inline">Dark</code>.</p>
+
+        <div class="demo-box">
+            <div style="margin-bottom:.6rem;">
+                <button class="btn" @onclick="() => _theme = RichTextTheme.Light">Light</button>
+                <button class="btn" @onclick="() => _theme = RichTextTheme.Dark">Dark</button>
+                <button class="btn" @onclick="() => _theme = RichTextTheme.System">System</button>
+                <span style="margin-left:.5rem;color:#57606a;font-size:.9rem;">Current: <strong>@_theme</strong></span>
+            </div>
+            <BlazorRichTextEditor @bind-Value="_html" Theme="_theme"
+                                  Toolbar="BlazorRichTextEditorToolbar.All" Height="160px" />
+        </div>
+
+        <CodeSample Code="@_themeCode" />
+    </section>
+
+    <section>
+        <h2>Direction (RTL)</h2>
+        <p>Set <code class="inline">Direction</code> to <code class="inline">TextDirection.Rtl</code> for
+            right-to-left languages. Leave it null to follow the document direction. The
+            <code class="inline">Direction</code> toolbar group also lets users toggle per-block direction.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_rtl" Direction="TextDirection.Rtl"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.All | BlazorRichTextEditorToolbar.Direction)"
+                                  Height="140px" />
+        </div>
+
+        <CodeSample Code="@_rtlCode" />
+    </section>
+
+    <section>
+        <h2>Localization</h2>
+        <p>Provide an <code class="inline">IRichTextLocalizer</code> to translate labels and tooltips. Return a
+            localized string for a key, or <code class="inline">null</code> to fall back to the built-in English
+            label.</p>
+
+        <CodeSample Title="C#" Code="@_locCode" />
+        <CodeSample Code="@_locUsage" />
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>The editor adapts to the chosen theme.</p>";
+    private string _rtl = "<p>مرحبا بك في المحرر</p>";
+    private RichTextTheme _theme = RichTextTheme.Light;
+
+    private const string _themeCode = @"<BlazorRichTextEditor @bind-Value=""html"" Theme=""RichTextTheme.Dark"" />";
+
+    private const string _rtlCode = @"<BlazorRichTextEditor @bind-Value=""html""
+    Direction=""TextDirection.Rtl""
+    Toolbar=""@(BlazorRichTextEditorToolbar.All
+             | BlazorRichTextEditorToolbar.Direction)"" />";
+
+    private const string _locCode = @"public class FrenchLocalizer : IRichTextLocalizer
+{
+    private readonly Dictionary<string, string> _map = new()
+    {
+        [""bold""] = ""Gras"",
+        [""italic""] = ""Italique"",
+        [""link""] = ""Lien"",
+    };
+
+    public string? this[string key] => _map.TryGetValue(key, out var v) ? v : null;
+}";
+
+    private const string _locUsage = @"<BlazorRichTextEditor @bind-Value=""html"" Localizer=""localizer"" />";
+}

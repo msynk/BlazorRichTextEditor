@@ -1,0 +1,65 @@
+@page "/slash-and-shortcuts"
+
+<PageTitle>Slash menu &amp; shortcuts</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Productivity</span>
+        <h1>Slash menu, shortcuts &amp; emoji</h1>
+        <p class="lead">Insert blocks from a slash command menu, drive the editor with keyboard shortcuts, and
+            pick emoji or special characters.</p>
+    </header>
+
+    <section>
+        <h2>Slash command menu</h2>
+        <p>Type <code class="inline">/</code> at the start of a line to open a command menu for inserting
+            headings, lists, quotes, code blocks, tables, and more. Keep typing to filter, then press Enter.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="200px"
+                                  Toolbar="BlazorRichTextEditorToolbar.AllExtended"
+                                  Placeholder="Type / on a new line to open the command menu..." />
+        </div>
+    </section>
+
+    <section>
+        <h2>Keyboard shortcuts</h2>
+        <p>Common shortcuts work out of the box (Ctrl/Cmd+B for bold, Ctrl/Cmd+I for italic, and so on).
+            Override or extend them with <code class="inline">KeyboardShortcuts</code> - a map of chords to
+            command names. Use <code class="inline">"ctrl"</code> for the primary modifier on all platforms.</p>
+
+        <CodeSample Code="@_shortcutCode" />
+    </section>
+
+    <section>
+        <h2>Emoji &amp; special characters</h2>
+        <p>The <code class="inline">Emoji</code> group adds a picker for emoji and special characters.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html2" Height="140px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Emoji | BlazorRichTextEditorToolbar.Inline)"
+                                  Placeholder="Open the emoji picker..." />
+        </div>
+
+        <CodeSample Code="@_emojiCode" />
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>Place the cursor on a new line and type a slash.</p>";
+    private string _html2 = "<p>Add a little ✨ to your text.</p>";
+
+    private const string _shortcutCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      KeyboardShortcuts=""shortcuts"" />
+
+@code {
+    private Dictionary<string, string> shortcuts = new()
+    {
+        [""ctrl+b""] = ""bold"",
+        [""ctrl+shift+k""] = ""createLink"",
+    };
+}";
+
+    private const string _emojiCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      Toolbar=""BlazorRichTextEditorToolbar.Emoji"" />";
+}

@@ -1,74 +1,116 @@
 ﻿@page "/"
 
-<PageTitle>BlazorRichTextEditor demo</PageTitle>
+<PageTitle>BlazorRichTextEditor - Overview</PageTitle>
 
-<div class="demo">
-    <header>
-        <h1>BlazorRichTextEditor</h1>
-        <p>A native rich text editor component for Blazor. Two-way bound to an HTML string.</p>
-    </header>
-
-    <section>
-        <h2>Editor</h2>
-        <BlazorRichTextEditor @bind-Value="_html"
-                              Toolbar="BlazorRichTextEditorToolbar.AllExtended"
-                              ShowCount="true"
-                              MaxLength="5000"
-                              OnImageUpload="HandleImageUpload"
-                              Placeholder="Start writing - try images, tables, color, source view, find & replace..."
-                              Height="280px" />
+<div class="page">
+    <section class="hero">
+        <span class="eyebrow">✦ Native Blazor component</span>
+        <h1>A rich text editor that drops straight into your Blazor app</h1>
+        <p>WYSIWYG editing two-way bound to an HTML or Markdown string. All component logic lives in C# with a
+            deliberately thin JavaScript bridge for the browser-only concerns.</p>
+        <div class="cta">
+            <a class="btn btn-primary" href="/getting-started">Get started</a>
+            <a class="btn btn-ghost" href="/toolbar">Explore the toolbar</a>
+        </div>
+        <div class="badge-row">
+            <span class="badge">@@bind-Value</span>
+            <span class="badge">HTML &amp; Markdown</span>
+            <span class="badge">Tables &amp; media</span>
+            <span class="badge">EditForm</span>
+            <span class="badge">Dark mode &amp; RTL</span>
+        </div>
     </section>
 
     <section>
+        <h2>Try it</h2>
+        <p>The editor below uses the full extended toolbar. Type, paste, format, and drop in an image -
+            the bound value and rendered output update live.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html"
+                                  Toolbar="BlazorRichTextEditorToolbar.AllExtended"
+                                  ShowCount="true"
+                                  Placeholder="Start writing - try images, tables, color, source view, find & replace..."
+                                  Height="240px" />
+        </div>
+
         <div class="row">
             <div class="col">
-                <h2>Live HTML (<code>&#64;bind-Value</code>)</h2>
+                <h3>Bound value (<code class="inline">@@bind-Value</code>)</h3>
                 <pre class="code">@_html</pre>
             </div>
             <div class="col">
-                <h2>Rendered output</h2>
+                <h3>Rendered output</h3>
                 <div class="preview">@((MarkupString)_html)</div>
             </div>
         </div>
     </section>
 
     <section>
-        <h2>Other configurations</h2>
-        <h3>Minimal toolbar (inline + lists only)</h3>
-        <BlazorRichTextEditor @bind-Value="_html2" Toolbar="BlazorRichTextEditorToolbar.Inline | BlazorRichTextEditorToolbar.Lists" Height="120px"
-                   Placeholder="A trimmed-down toolbar..." />
+        <h2>What's in the box</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="ic">𝐁</div>
+                <h3>Formatting</h3>
+                <p>Bold, italic, headings, lists, blockquote, code, alignment, indent, sub/superscript, undo/redo.</p>
+            </div>
+            <div class="feature-card">
+                <div class="ic">🖼️</div>
+                <h3>Rich content</h3>
+                <p>Links, images (URL, drag-drop, paste, upload, resize), tables, media embeds, and rules.</p>
+            </div>
+            <div class="feature-card">
+                <div class="ic">🎨</div>
+                <h3>Color &amp; type</h3>
+                <p>Text and highlight color, plus configurable font family and size pickers.</p>
+            </div>
+            <div class="feature-card">
+                <div class="ic">⚡</div>
+                <h3>Productivity</h3>
+                <p>Markdown shortcuts, a slash menu, emoji picker, find &amp; replace, and full-screen mode.</p>
+            </div>
+            <div class="feature-card">
+                <div class="ic">🛡️</div>
+                <h3>Output &amp; safety</h3>
+                <p>HTML or Markdown output, an HTML source view, and allowlist sanitization.</p>
+            </div>
+            <div class="feature-card">
+                <div class="ic">🧩</div>
+                <h3>Integration</h3>
+                <p>EditForm validation, character/word count, theming + dark mode, RTL/i18n, imperative API.</p>
+            </div>
+        </div>
+        <p class="mt">Use the navigation on the left to explore each capability with live demos and copy-paste sample code.</p>
+    </section>
 
-        <h3 class="mt">Read-only</h3>
-        <BlazorRichTextEditor Value="@_readonlyContent" ReadOnly="true" ShowToolbar="false" Height="auto" />
+    <section>
+        <h2>Install &amp; set up</h2>
+        <p>Reference the <code class="inline">BlazorRichTextEditor</code> package, add the stylesheet to your
+            host page, and use the component inside an interactive render mode.</p>
 
-        <h3 class="mt">Dark theme + Markdown output</h3>
-        <BlazorRichTextEditor @bind-Value="_markdown"
-                              Toolbar="BlazorRichTextEditorToolbar.AllExtended"
-                              Theme="RichTextTheme.Dark"
-                              Format="RichTextFormat.Markdown"
-                              Placeholder="Bound value is Markdown..."
-                              Height="160px" />
-        <pre class="code">@_markdown</pre>
+        <CodeSample Title="App.razor (host)" Code="@_setupHost" />
+        <CodeSample Title="Razor (usage)" Code="@_setupUsage" />
+
+        <div class="note">
+            The component needs an <strong>interactive</strong> render mode (Server or WebAssembly) because it
+            relies on JS interop for <code>contenteditable</code>, selection, and formatting commands.
+        </div>
     </section>
 </div>
 
 @code {
     private string _html = "<h2>Welcome 👋</h2><p>This editor is <strong>bound</strong> to a C# string. " +
-        "Edit me, then watch the HTML on the left update.</p><ul><li>Bullet and numbered lists</li>" +
+        "Edit me, then watch the HTML update.</p><ul><li>Bullet and numbered lists</li>" +
         "<li>Headings, quotes, code blocks</li><li>Links, alignment, undo/redo</li></ul>";
 
-    private string _html2 = "<p>Try <em>inline</em> formatting here.</p>";
+    private const string _setupHost = @"<link rel=""stylesheet""
+      href=""_content/BlazorRichTextEditor/blazorRichTextEditor.css"" />";
 
-    private string _markdown = "# Markdown mode\n\nType here and the bound value updates as **Markdown**.";
+    private const string _setupUsage = @"@using BlazorRichTextEditor
 
-    private readonly string _readonlyContent =
-        "<p>This instance is <strong>read-only</strong> with the toolbar hidden - useful for displaying stored content.</p>";
+<BlazorRichTextEditor @bind-Value=""html"" Placeholder=""Write something..."" />
 
-    // Demo upload handler: echoes the image back as a data URL. A real app would persist the
-    // bytes and return a hosted URL.
-    private Task<string?> HandleImageUpload(RichTextImageUpload image)
-    {
-        var dataUrl = $"data:{image.ContentType};base64,{Convert.ToBase64String(image.Content)}";
-        return Task.FromResult<string?>(dataUrl);
-    }
+@code {
+    private string html = ""<p>Hello <strong>world</strong>.</p>"";
+}";
 }

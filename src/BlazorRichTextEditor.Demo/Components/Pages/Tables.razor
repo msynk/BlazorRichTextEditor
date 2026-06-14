@@ -1,0 +1,40 @@
+@page "/tables"
+
+<PageTitle>Tables</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Editing</span>
+        <h1>Tables</h1>
+        <p class="lead">Insert tables and edit their structure - add or remove rows and columns, merge cells, and
+            resize columns by dragging.</p>
+    </header>
+
+    <section>
+        <h2>Inserting &amp; editing</h2>
+        <p>Enable the <code class="inline">Table</code> group. The toolbar button inserts a table; once the
+            cursor is inside one, contextual controls let you add/remove rows and columns and merge cells.
+            Column widths can be adjusted by dragging the borders.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="260px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Table | BlazorRichTextEditorToolbar.Inline)"
+                                  Placeholder="Insert a table and edit its cells..." />
+        </div>
+
+        <CodeSample Code="@_code" />
+    </section>
+
+    <section>
+        <h2>Bound HTML</h2>
+        <pre class="code">@_html</pre>
+    </section>
+</div>
+
+@code {
+    private string _html = "<table><thead><tr><th>Feature</th><th>Status</th></tr></thead>" +
+        "<tbody><tr><td>Tables</td><td>Ready</td></tr><tr><td>Merge cells</td><td>Ready</td></tr></tbody></table>";
+
+    private const string _code = @"<BlazorRichTextEditor @bind-Value=""html""
+                      Toolbar=""BlazorRichTextEditorToolbar.Table"" />";
+}

@@ -1,0 +1,60 @@
+@page "/links"
+
+<PageTitle>Links</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Editing</span>
+        <h1>Links</h1>
+        <p class="lead">Insert, edit, and remove hyperlinks. The toolbar reflects when the cursor sits inside a
+            link, and the editor reports the active href through its selection state.</p>
+    </header>
+
+    <section>
+        <h2>Working with links</h2>
+        <p>Enable the <code class="inline">Link</code> group (included in both <code class="inline">All</code>
+            and <code class="inline">AllExtended</code>). Select text and use the link button to add a URL;
+            place the cursor in an existing link to edit or remove it.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="180px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Inline | BlazorRichTextEditorToolbar.Link)"
+                                  OnError="OnError"
+                                  Placeholder="Select text, then add a link..." />
+            @if (_error is not null)
+            {
+                <p style="color:#d1242f;font-size:.9rem;margin:.5rem 0 0;">@_error</p>
+            }
+        </div>
+
+        <CodeSample Code="@_code" />
+
+        <div class="note">
+            Invalid or disallowed URLs raise <code>OnError</code> with a stable code such as
+            <code>invalid-url</code>, and the content is left unchanged. Only URI schemes permitted by the
+            active sanitization policy (http, https, mailto, tel by default) are kept.
+        </div>
+    </section>
+
+    <section>
+        <h2>Bound HTML</h2>
+        <pre class="code">@_html</pre>
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>Read the <a href=\"https://learn.microsoft.com/aspnet/core/blazor\">Blazor docs</a> to learn more.</p>";
+    private string? _error;
+
+    private void OnError(RichTextError e) => _error = $"{e.Code}: {e.Message}";
+
+    private const string _code = @"<BlazorRichTextEditor @bind-Value=""html""
+                      Toolbar=""@(BlazorRichTextEditorToolbar.Inline
+                               | BlazorRichTextEditorToolbar.Link)""
+                      OnError=""OnError"" />
+
+@code {
+    private void OnError(RichTextError e)
+        => Console.WriteLine($""{e.Code}: {e.Message}"");
+}";
+}

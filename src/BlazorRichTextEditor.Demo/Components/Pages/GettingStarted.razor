@@ -1,0 +1,97 @@
+@page "/getting-started"
+
+<PageTitle>Getting started</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Start here</span>
+        <h1>Getting started</h1>
+        <p class="lead">The smallest useful editor is one line. From there you can add a placeholder,
+            set the height, switch to read-only, and react to focus events.</p>
+    </header>
+
+    <section>
+        <h2>The minimal editor</h2>
+        <p>Bind a string with <code class="inline">@@bind-Value</code> and you have a working editor with the
+            default toolbar.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_basic" Placeholder="Write something..." Height="160px" />
+        </div>
+
+        <CodeSample Code="@_basicCode" />
+    </section>
+
+    <section>
+        <h2>Placeholder &amp; height</h2>
+        <p><code class="inline">Placeholder</code> shows while the editor is empty.
+            <code class="inline">Height</code> sets the minimum height of the editing surface and accepts any
+            CSS length (e.g. <code class="inline">200px</code>, <code class="inline">20rem</code>, or
+            <code class="inline">auto</code> to grow with content).</p>
+
+        <CodeSample Code="@_phCode" />
+    </section>
+
+    <section>
+        <h2>Read-only display</h2>
+        <p>Set <code class="inline">ReadOnly="true"</code> to lock editing - handy for showing stored content.
+            Combine with <code class="inline">ShowToolbar="false"</code> to hide the toolbar entirely and
+            <code class="inline">Height="auto"</code> to fit the content.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor Value="@_readonly" ReadOnly="true" ShowToolbar="false" Height="auto" />
+        </div>
+
+        <CodeSample Code="@_readonlyCode" />
+    </section>
+
+    <section>
+        <h2>Focus &amp; blur events</h2>
+        <p><code class="inline">OnFocus</code> and <code class="inline">OnBlur</code> fire when the editing
+            surface gains or loses focus.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_focusHtml" Height="120px"
+                                  OnFocus="OnEditorFocus"
+                                  OnBlur="OnEditorBlur" />
+            <p style="margin:.5rem 0 0;color:#57606a;font-size:.9rem;">Editor is currently: <strong>@_focusState</strong></p>
+        </div>
+
+        <CodeSample Code="@_focusCode" />
+    </section>
+</div>
+
+@code {
+    private string _basic = "<p>Hello <strong>world</strong>.</p>";
+    private string _focusHtml = "<p>Click in and out of me.</p>";
+    private string _focusState = "blurred";
+    private void OnEditorFocus() => _focusState = "focused";
+    private void OnEditorBlur() => _focusState = "blurred";
+    private readonly string _readonly =
+        "<p>This instance is <strong>read-only</strong> with the toolbar hidden - useful for displaying stored content.</p>";
+
+    private const string _basicCode = @"<BlazorRichTextEditor @bind-Value=""html"" Placeholder=""Write something..."" />
+
+@code {
+    private string html = ""<p>Hello <strong>world</strong>.</p>"";
+}";
+
+    private const string _phCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      Placeholder=""Type your notes here...""
+                      Height=""20rem"" />";
+
+    private const string _readonlyCode = @"<BlazorRichTextEditor Value=""@storedHtml""
+                      ReadOnly=""true""
+                      ShowToolbar=""false""
+                      Height=""auto"" />";
+
+    private const string _focusCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      OnFocus=""OnEditorFocus""
+                      OnBlur=""OnEditorBlur"" />
+
+@code {
+    private string state = ""blurred"";
+    private void OnEditorFocus() => state = ""focused"";
+    private void OnEditorBlur() => state = ""blurred"";
+}";
+}

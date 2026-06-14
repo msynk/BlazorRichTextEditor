@@ -1,0 +1,77 @@
+@page "/formatting"
+
+<PageTitle>Formatting</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Editing</span>
+        <h1>Formatting</h1>
+        <p class="lead">Inline styles, block formats, lists, alignment, indentation, and sub/superscript -
+            all driven from the toolbar with live active-state highlighting.</p>
+    </header>
+
+    <section>
+        <h2>Inline &amp; block basics</h2>
+        <p>The default toolbar covers the everyday essentials: <strong>bold</strong>, <em>italic</em>,
+            underline, strikethrough; paragraph and H1-H3 block formats; bullet and numbered lists;
+            blockquote and code block; alignment; undo/redo; and clear formatting. Toolbar buttons light up
+            to reflect the formatting at the cursor.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Toolbar="BlazorRichTextEditorToolbar.All" Height="220px"
+                                  Placeholder="Select text and apply formatting..." />
+        </div>
+
+        <CodeSample Code="@_allCode" />
+    </section>
+
+    <section>
+        <h2>Indentation &amp; scripts</h2>
+        <p>The extended groups add indent/outdent and subscript/superscript. Enable them by combining toolbar
+            flags (see the <a href="/toolbar">Toolbar groups</a> page) or use
+            <code class="inline">AllExtended</code>.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html2" Height="160px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Inline | BlazorRichTextEditorToolbar.Indent | BlazorRichTextEditorToolbar.Script)"
+                                  Placeholder="Try indent, H2O and x², and nested indents..." />
+        </div>
+
+        <CodeSample Code="@_extCode" />
+    </section>
+
+    <section>
+        <h2>Toolbar group reference</h2>
+        <p>Each formatting capability belongs to a toolbar group flag:</p>
+        <table class="api">
+            <thead><tr><th>Group</th><th>Buttons</th></tr></thead>
+            <tbody>
+                <tr><td><code>History</code></td><td>Undo, redo</td></tr>
+                <tr><td><code>BlockFormat</code></td><td>Paragraph, H1-H3</td></tr>
+                <tr><td><code>Inline</code></td><td>Bold, italic, underline, strikethrough</td></tr>
+                <tr><td><code>Lists</code></td><td>Bullet list, numbered list</td></tr>
+                <tr><td><code>Blocks</code></td><td>Blockquote, code block</td></tr>
+                <tr><td><code>Alignment</code></td><td>Left, center, right</td></tr>
+                <tr><td><code>Indent</code></td><td>Indent, outdent</td></tr>
+                <tr><td><code>Script</code></td><td>Subscript, superscript</td></tr>
+                <tr><td><code>Clear</code></td><td>Clear formatting</td></tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+
+@code {
+    private string _html = "<h2>Headings</h2><p>Mix <strong>bold</strong>, <em>italic</em>, " +
+        "<u>underline</u> and <s>strikethrough</s>.</p><blockquote>A short quote.</blockquote>" +
+        "<ol><li>First</li><li>Second</li></ol>";
+
+    private string _html2 = "<p>Water is H<sub>2</sub>O. Einstein wrote E = mc<sup>2</sup>.</p>";
+
+    private const string _allCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      Toolbar=""BlazorRichTextEditorToolbar.All"" />";
+
+    private const string _extCode = @"<BlazorRichTextEditor @bind-Value=""html""
+    Toolbar=""@(BlazorRichTextEditorToolbar.Inline
+             | BlazorRichTextEditorToolbar.Indent
+             | BlazorRichTextEditorToolbar.Script)"" />";
+}

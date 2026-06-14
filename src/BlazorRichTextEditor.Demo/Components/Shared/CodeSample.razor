@@ -1,0 +1,15 @@
+@* Renders a syntax-neutral code block. The Code parameter is HTML-encoded by Blazor,
+   so markup such as <BlazorRichTextEditor ... /> shows as literal text. *@
+
+<div class="sample">
+    <div class="sample-head">@Title</div>
+    <pre><code>@Code</code></pre>
+</div>
+
+@code {
+    /// <summary>Label shown in the sample header (e.g. "Razor", "C#").</summary>
+    [Parameter] public string Title { get; set; } = "Razor";
+
+    /// <summary>The literal source code to display.</summary>
+    [Parameter] public string Code { get; set; } = "";
+}

@@ -1,0 +1,65 @@
+@page "/colors-and-fonts"
+
+<PageTitle>Colors &amp; fonts</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Editing</span>
+        <h1>Colors &amp; fonts</h1>
+        <p class="lead">Apply text and highlight colors, and choose font families and sizes. You can customize the
+            font lists offered in the pickers.</p>
+    </header>
+
+    <section>
+        <h2>Text &amp; highlight color</h2>
+        <p>The <code class="inline">Color</code> group adds foreground (text) and background (highlight) color
+            pickers. The active colors are reported back in the selection state so the toolbar can reflect them.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="180px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Color | BlazorRichTextEditorToolbar.Inline)"
+                                  Placeholder="Select text and apply color or highlight..." />
+        </div>
+
+        <CodeSample Code="@_colorCode" />
+    </section>
+
+    <section>
+        <h2>Font family &amp; size</h2>
+        <p>The <code class="inline">Font</code> group adds family and size selectors. Provide your own options
+            with <code class="inline">FontFamilies</code> and <code class="inline">FontSizes</code>; leave them
+            null/empty to use the built-in defaults.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html2" Height="160px"
+                                  Toolbar="BlazorRichTextEditorToolbar.Font"
+                                  FontFamilies="_fonts"
+                                  FontSizes="_sizes"
+                                  Placeholder="Pick a font family and size..." />
+        </div>
+
+        <CodeSample Code="@_fontCode" />
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>Make words <span style=\"color:#5b3df5\">colorful</span> or " +
+        "<span style=\"background:#fff3a3\">highlighted</span>.</p>";
+    private string _html2 = "<p>Choose a typeface for this paragraph.</p>";
+
+    private readonly string[] _fonts = { "Inter", "Georgia", "Courier New", "Comic Sans MS" };
+    private readonly string[] _sizes = { "12px", "16px", "20px", "28px" };
+
+    private const string _colorCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      Toolbar=""BlazorRichTextEditorToolbar.Color"" />";
+
+    private const string _fontCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      Toolbar=""BlazorRichTextEditorToolbar.Font""
+                      FontFamilies=""fonts""
+                      FontSizes=""sizes"" />
+
+@code {
+    private string[] fonts = { ""Inter"", ""Georgia"", ""Courier New"" };
+    private string[] sizes = { ""12px"", ""16px"", ""20px"", ""28px"" };
+}";
+}

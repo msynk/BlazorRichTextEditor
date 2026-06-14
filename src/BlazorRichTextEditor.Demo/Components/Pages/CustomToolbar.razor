@@ -1,0 +1,93 @@
+@page "/custom-toolbar"
+
+<PageTitle>Custom toolbar</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Toolbar &amp; output</span>
+        <h1>Custom toolbar</h1>
+        <p class="lead">Reorder the built-in groups and add your own buttons with
+            <code class="inline">ToolbarConfig</code>.</p>
+    </header>
+
+    <section>
+        <h2>Custom items</h2>
+        <p>Each <code class="inline">RichTextToolbarItem</code> needs an <code class="inline">Id</code>, an
+            <code class="inline">AriaLabel</code>, and an <code class="inline">OnActivate</code> callback that
+            receives the editor instance - so you can call the imperative API
+            (<code class="inline">ExecuteCommandAsync</code>, <code class="inline">GetHtmlAsync</code>, etc.).
+            Supply a <code class="inline">Label</code> or an <code class="inline">Icon</code> render fragment.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="180px"
+                                  Toolbar="BlazorRichTextEditorToolbar.All"
+                                  ToolbarConfig="_config"
+                                  Placeholder="Use the custom 'Today' button at the end..." />
+        </div>
+
+        <CodeSample Title="C#" Code="@_itemCode" />
+        <CodeSample Code="@_usageCode" />
+    </section>
+
+    <section>
+        <h2>Reordering groups</h2>
+        <p>Set <code class="inline">Order</code> to a list of entry ids. Listed ids appear first in that order;
+            any enabled-but-omitted groups are appended in their default order, and unknown ids are skipped.</p>
+
+        <CodeSample Title="C#" Code="@_orderCode" />
+
+        <div class="note">
+            Built-in group ids: <code>history, blockformat, font, inline, color, script, lists, indent, blocks,
+            link, media, image, table, rule, alignment, direction, emoji, find, source, fullscreen, clear</code>.
+        </div>
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>A custom toolbar button can run any command.</p>";
+
+    private RichTextToolbarConfig _config = null!;
+
+    protected override void OnInitialized()
+    {
+        _config = new RichTextToolbarConfig
+        {
+            CustomItems = new[]
+            {
+                new RichTextToolbarItem
+                {
+                    Id = "insert-date",
+                    Label = "Today",
+                    AriaLabel = "Insert today's date",
+                    OnActivate = editor =>
+                        editor.ExecuteCommandAsync("insertText", DateTime.Now.ToString("yyyy-MM-dd"))
+                }
+            }
+        };
+    }
+
+    private const string _itemCode = @"var config = new RichTextToolbarConfig
+{
+    CustomItems = new[]
+    {
+        new RichTextToolbarItem
+        {
+            Id = ""insert-date"",
+            Label = ""Today"",
+            AriaLabel = ""Insert today's date"",
+            OnActivate = editor =>
+                editor.ExecuteCommandAsync(""insertText"",
+                    DateTime.Now.ToString(""yyyy-MM-dd""))
+        }
+    }
+};";
+
+    private const string _usageCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      ToolbarConfig=""config"" />";
+
+    private const string _orderCode = @"var config = new RichTextToolbarConfig
+{
+    // inline first, then lists, then links; the rest follow in default order
+    Order = new[] { ""inline"", ""lists"", ""link"" }
+};";
+}

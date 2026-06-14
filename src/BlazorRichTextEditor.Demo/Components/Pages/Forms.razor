@@ -1,0 +1,99 @@
+@page "/forms"
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Forms &amp; validation</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Integration</span>
+        <h1>Forms &amp; validation</h1>
+        <p class="lead">The editor participates in <code class="inline">EditForm</code> like any input - bind a
+            model property and validation messages flow through. It also shows a live character/word count with
+            an optional maximum.</p>
+    </header>
+
+    <section>
+        <h2>EditForm integration</h2>
+        <p>Bind a model property with <code class="inline">@@bind-Value</code> inside an
+            <code class="inline">EditForm</code>. The component picks up the <code class="inline">EditContext</code>
+            and reports validity, so <code class="inline">DataAnnotationsValidator</code> and
+            <code class="inline">ValidationMessage</code> work as expected.</p>
+
+        <div class="demo-box">
+            <EditForm Model="_model" OnValidSubmit="OnValidSubmit">
+                <DataAnnotationsValidator />
+
+                <label style="font-weight:600;display:block;margin-bottom:.4rem;">Article body</label>
+                <BlazorRichTextEditor @bind-Value="_model.Body"
+                                      Toolbar="BlazorRichTextEditorToolbar.All"
+                                      ShowCount="true"
+                                      MaxLength="500"
+                                      Height="180px"
+                                      Placeholder="Write at least 20 characters..." />
+                <ValidationMessage For="() => _model.Body" />
+
+                <div style="margin-top:.75rem;">
+                    <button class="btn" type="submit">Submit</button>
+                    @if (_submitted)
+                    {
+                        <span style="color:#1a7f37;margin-left:.75rem;">Submitted ✓</span>
+                    }
+                </div>
+            </EditForm>
+        </div>
+
+        <CodeSample Code="@_formCode" />
+        <CodeSample Title="C#" Code="@_modelCode" />
+    </section>
+
+    <section>
+        <h2>Character &amp; word count</h2>
+        <p>Set <code class="inline">ShowCount="true"</code> to display a count footer. Add
+            <code class="inline">MaxLength</code> to cap the plain-text character count - input beyond the limit
+            is prevented and the footer reflects the remaining budget.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_counted" ShowCount="true" MaxLength="120" Height="120px"
+                                  Placeholder="Up to 120 characters..." />
+        </div>
+
+        <CodeSample Code="@_countCode" />
+    </section>
+</div>
+
+@code {
+    private readonly ArticleModel _model = new();
+    private string _counted = "<p>Counting characters and words.</p>";
+    private bool _submitted;
+
+    private void OnValidSubmit() => _submitted = true;
+
+    public class ArticleModel
+    {
+        [Required(ErrorMessage = "The body is required.")]
+        [MinLength(20, ErrorMessage = "Add a bit more detail (min 20 characters).")]
+        public string Body { get; set; } = "";
+    }
+
+    private const string _formCode = @"<EditForm Model=""model"" OnValidSubmit=""OnValidSubmit"">
+    <DataAnnotationsValidator />
+
+    <BlazorRichTextEditor @bind-Value=""model.Body""
+                          ShowCount=""true""
+                          MaxLength=""500"" />
+    <ValidationMessage For=""() => model.Body"" />
+
+    <button type=""submit"">Submit</button>
+</EditForm>";
+
+    private const string _modelCode = @"public class ArticleModel
+{
+    [Required]
+    [MinLength(20)]
+    public string Body { get; set; } = """";
+}";
+
+    private const string _countCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      ShowCount=""true""
+                      MaxLength=""120"" />";
+}

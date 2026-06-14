@@ -1,0 +1,69 @@
+@page "/markdown"
+
+<PageTitle>Markdown</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Productivity</span>
+        <h1>Markdown</h1>
+        <p class="lead">Bind to Markdown instead of HTML, and use Markdown typing shortcuts to format as you
+            write.</p>
+    </header>
+
+    <section>
+        <h2>Markdown output mode</h2>
+        <p>Set <code class="inline">Format="RichTextFormat.Markdown"</code> and the bound
+            <code class="inline">Value</code> becomes Markdown - both for what you read in and what the editor
+            writes out. The editing surface stays WYSIWYG; only the round-tripped value changes format.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_md" Height="200px"
+                                  Toolbar="BlazorRichTextEditorToolbar.AllExtended"
+                                  Format="RichTextFormat.Markdown"
+                                  Placeholder="Format with the toolbar; the value is Markdown..." />
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <h3>Bound value (Markdown)</h3>
+                <pre class="code">@_md</pre>
+            </div>
+            <div class="col">
+                <h3>Rendered</h3>
+                <div class="preview">@((MarkupString)_md)</div>
+            </div>
+        </div>
+
+        <CodeSample Code="@_code" />
+    </section>
+
+    <section>
+        <h2>Markdown typing shortcuts</h2>
+        <p>Even in HTML mode, common Markdown patterns are recognized as you type and converted to formatting:</p>
+        <table class="api">
+            <thead><tr><th>Type this</th><th>Get</th></tr></thead>
+            <tbody>
+                <tr><td><code># </code></td><td>Heading 1 (<code>## </code> → H2, etc.)</td></tr>
+                <tr><td><code>- </code> or <code>* </code></td><td>Bullet list item</td></tr>
+                <tr><td><code>1. </code></td><td>Numbered list item</td></tr>
+                <tr><td><code>&gt; </code></td><td>Blockquote</td></tr>
+                <tr><td><code>```</code></td><td>Code block</td></tr>
+            </tbody>
+        </table>
+        <div class="note">
+            Markdown typing shortcuts are independent of the output <code>Format</code> - they work whether your
+            bound value is HTML or Markdown.
+        </div>
+    </section>
+</div>
+
+@code {
+    private string _md = "# Markdown mode\n\nType here and the bound value updates as **Markdown**.\n\n- Lists work too\n- And *emphasis*";
+
+    private const string _code = @"<BlazorRichTextEditor @bind-Value=""markdown""
+                      Format=""RichTextFormat.Markdown"" />
+
+@code {
+    private string markdown = ""# Hello\n\nBound value is **Markdown**."";
+}";
+}

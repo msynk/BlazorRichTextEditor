@@ -1,0 +1,87 @@
+@page "/toolbar"
+
+<PageTitle>Toolbar groups</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Toolbar &amp; output</span>
+        <h1>Toolbar groups</h1>
+        <p class="lead">Choose exactly which button groups appear using the
+            <code class="inline">BlazorRichTextEditorToolbar</code> flags enum, or hide the toolbar entirely.</p>
+    </header>
+
+    <section>
+        <h2>Pick your groups</h2>
+        <p>The <code class="inline">Toolbar</code> parameter is a <code class="inline">[Flags]</code> enum.
+            Combine groups with bitwise OR. Two presets cover the common cases:
+            <code class="inline">All</code> (the original default set) and
+            <code class="inline">AllExtended</code> (everything, including images, tables, color, and more).</p>
+
+        <h3>Minimal: inline + lists</h3>
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="130px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Inline | BlazorRichTextEditorToolbar.Lists)"
+                                  Placeholder="A trimmed-down toolbar..." />
+        </div>
+        <CodeSample Code="@_minCode" />
+
+        <h3>Everything: AllExtended</h3>
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="150px"
+                                  Toolbar="BlazorRichTextEditorToolbar.AllExtended"
+                                  Placeholder="The full toolbar..." />
+        </div>
+        <CodeSample Code="@_allCode" />
+    </section>
+
+    <section>
+        <h2>Hiding the toolbar</h2>
+        <p>Set <code class="inline">ShowToolbar="false"</code> to remove the toolbar while keeping the editing
+            surface - useful with <code class="inline">ReadOnly</code> for display, or when you drive formatting
+            from your own UI via the <a href="/api-and-events">imperative API</a>.</p>
+        <CodeSample Code="@_hideCode" />
+    </section>
+
+    <section>
+        <h2>All groups</h2>
+        <table class="api">
+            <thead><tr><th>Flag</th><th>In <code>All</code></th><th>Adds</th></tr></thead>
+            <tbody>
+                <tr><td><code>History</code></td><td>✓</td><td>Undo / redo</td></tr>
+                <tr><td><code>BlockFormat</code></td><td>✓</td><td>Paragraph, H1-H3</td></tr>
+                <tr><td><code>Inline</code></td><td>✓</td><td>Bold, italic, underline, strikethrough</td></tr>
+                <tr><td><code>Lists</code></td><td>✓</td><td>Bullet / numbered lists</td></tr>
+                <tr><td><code>Blocks</code></td><td>✓</td><td>Blockquote, code block</td></tr>
+                <tr><td><code>Link</code></td><td>✓</td><td>Insert / edit / remove links</td></tr>
+                <tr><td><code>Alignment</code></td><td>✓</td><td>Left / center / right</td></tr>
+                <tr><td><code>Clear</code></td><td>✓</td><td>Clear formatting</td></tr>
+                <tr><td><code>Image</code></td><td></td><td>Image insert / upload</td></tr>
+                <tr><td><code>Color</code></td><td></td><td>Text &amp; highlight color</td></tr>
+                <tr><td><code>Font</code></td><td></td><td>Font family &amp; size</td></tr>
+                <tr><td><code>Indent</code></td><td></td><td>Indent / outdent</td></tr>
+                <tr><td><code>Script</code></td><td></td><td>Subscript / superscript</td></tr>
+                <tr><td><code>Source</code></td><td></td><td>HTML source view toggle</td></tr>
+                <tr><td><code>Table</code></td><td></td><td>Tables</td></tr>
+                <tr><td><code>Media</code></td><td></td><td>Video / audio / embeds</td></tr>
+                <tr><td><code>Rule</code></td><td></td><td>Horizontal rule</td></tr>
+                <tr><td><code>Emoji</code></td><td></td><td>Emoji / special characters</td></tr>
+                <tr><td><code>Find</code></td><td></td><td>Find &amp; replace</td></tr>
+                <tr><td><code>FullScreen</code></td><td></td><td>Full-screen toggle</td></tr>
+                <tr><td><code>Direction</code></td><td></td><td>LTR / RTL toggle</td></tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>Toggle different toolbar groups above.</p>";
+
+    private const string _minCode = @"<BlazorRichTextEditor @bind-Value=""html""
+    Toolbar=""@(BlazorRichTextEditorToolbar.Inline
+             | BlazorRichTextEditorToolbar.Lists)"" />";
+
+    private const string _allCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      Toolbar=""BlazorRichTextEditorToolbar.AllExtended"" />";
+
+    private const string _hideCode = @"<BlazorRichTextEditor @bind-Value=""html"" ShowToolbar=""false"" />";
+}

@@ -1,0 +1,53 @@
+@page "/media"
+
+<PageTitle>Media &amp; rules</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Editing</span>
+        <h1>Media &amp; horizontal rules</h1>
+        <p class="lead">Embed YouTube/Vimeo, native video and audio, and drop in horizontal rules as section
+            dividers.</p>
+    </header>
+
+    <section>
+        <h2>Media embeds</h2>
+        <p>The <code class="inline">Media</code> group adds an embed button that accepts a media URL and inserts
+            the right element - an <code class="inline">&lt;iframe&gt;</code> for YouTube/Vimeo, or
+            <code class="inline">&lt;video&gt;</code>/<code class="inline">&lt;audio&gt;</code> for direct media
+            links.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html" Height="240px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Media | BlazorRichTextEditorToolbar.Rule | BlazorRichTextEditorToolbar.BlockFormat)"
+                                  Placeholder="Use the media button to embed a video..." />
+        </div>
+
+        <CodeSample Code="@_code" />
+    </section>
+
+    <section>
+        <h2>Horizontal rules</h2>
+        <p>The <code class="inline">Rule</code> group inserts an <code class="inline">&lt;hr&gt;</code> at the
+            cursor - useful as a visual divider between sections.</p>
+        <pre class="code">@_html</pre>
+    </section>
+
+    <section>
+        <h2>Sanitization note</h2>
+        <div class="note">
+            Embedded media (<code>iframe</code>, <code>video</code>, <code>audio</code>, <code>source</code>) is
+            covered by the default sanitization allowlist. If you supply a custom
+            <code>SanitizationPolicy</code>, include these tags and their attributes or embeds will be stripped.
+            See <a href="/source-and-sanitization">Source &amp; sanitization</a>.
+        </div>
+    </section>
+</div>
+
+@code {
+    private string _html = "<p>Add a divider below, then embed a video.</p><hr><p>Next section.</p>";
+
+    private const string _code = @"<BlazorRichTextEditor @bind-Value=""html""
+    Toolbar=""@(BlazorRichTextEditorToolbar.Media
+             | BlazorRichTextEditorToolbar.Rule)"" />";
+}

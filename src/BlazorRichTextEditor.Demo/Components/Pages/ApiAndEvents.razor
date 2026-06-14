@@ -1,0 +1,105 @@
+@page "/api-and-events"
+
+<PageTitle>API &amp; events</PageTitle>
+
+<div class="page">
+    <header class="page-head">
+        <span class="eyebrow">Integration</span>
+        <h1>Imperative API &amp; events</h1>
+        <p class="lead">Capture the component with <code class="inline">@@ref</code> to drive it from code, and
+            subscribe to focus, blur, and error events.</p>
+    </header>
+
+    <section>
+        <h2>Imperative API</h2>
+        <p>With a reference you can move focus, read the current HTML, and run raw editing commands:</p>
+        <ul class="bullets">
+            <li><code class="inline">FocusAsync()</code> - move keyboard focus into the editor.</li>
+            <li><code class="inline">GetHtmlAsync()</code> - read the current HTML content.</li>
+            <li><code class="inline">ExecuteCommandAsync(command, value?)</code> - run a formatting command.</li>
+        </ul>
+
+        <div class="demo-box">
+            <div style="margin-bottom:.6rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+                <button class="btn" @onclick="FocusEditor">Focus</button>
+                <button class="btn" @onclick="MakeBold">Bold command</button>
+                <button class="btn" @onclick="ReadHtml">Read HTML</button>
+            </div>
+            <BlazorRichTextEditor @ref="_editor" @bind-Value="_html"
+                                  Toolbar="BlazorRichTextEditorToolbar.All" Height="150px" />
+            @if (_read is not null)
+            {
+                <pre class="code" style="margin-top:.6rem;">@_read</pre>
+            }
+        </div>
+
+        <CodeSample Code="@_apiCode" />
+    </section>
+
+    <section>
+        <h2>Events</h2>
+        <p>The editor raises <code class="inline">OnFocus</code>, <code class="inline">OnBlur</code>, and
+            <code class="inline">OnError</code>. The error callback receives a
+            <code class="inline">RichTextError</code> with a stable <code class="inline">Code</code> and a
+            human-readable <code class="inline">Message</code> for recoverable issues (invalid URL, failed
+            upload, invalid HTML) - the content is left unchanged.</p>
+
+        <div class="demo-box">
+            <BlazorRichTextEditor @bind-Value="_html2" Height="120px"
+                                  Toolbar="@(BlazorRichTextEditorToolbar.Inline | BlazorRichTextEditorToolbar.Link)"
+                                  OnFocus="OnFocus"
+                                  OnBlur="OnBlur"
+                                  OnError="OnError" />
+            <pre class="code" style="margin-top:.6rem;min-height:40px;">@_log</pre>
+        </div>
+
+        <CodeSample Code="@_eventsCode" />
+    </section>
+</div>
+
+@code {
+    private BlazorRichTextEditor _editor = default!;
+    private string _html = "<p>Drive me from the buttons above.</p>";
+    private string _html2 = "<p>Focus, blur, or trigger an error.</p>";
+    private string? _read;
+    private string _log = "";
+
+    private Task FocusEditor() => _editor.FocusAsync();
+    private Task MakeBold() => _editor.ExecuteCommandAsync("bold");
+    private async Task ReadHtml() => _read = await _editor.GetHtmlAsync();
+
+    private void Log(string entry)
+    {
+        _log = $"{DateTime.Now:HH:mm:ss}  {entry}\n{_log}";
+        StateHasChanged();
+    }
+
+    private void OnFocus() => Log("focus");
+    private void OnBlur() => Log("blur");
+    private void OnError(RichTextError e) => Log($"error: {e.Code}");
+
+    private const string _apiCode = @"<BlazorRichTextEditor @ref=""editor"" @bind-Value=""html"" />
+<button @onclick=""() => editor.FocusAsync()"">Focus</button>
+
+@code {
+    private BlazorRichTextEditor editor = default!;
+
+    private async Task DoStuff()
+    {
+        await editor.ExecuteCommandAsync(""bold"");
+        var html = await editor.GetHtmlAsync();
+    }
+}";
+
+    private const string _eventsCode = @"<BlazorRichTextEditor @bind-Value=""html""
+                      OnFocus=""OnFocus""
+                      OnBlur=""OnBlur""
+                      OnError=""OnError"" />
+
+@code {
+    private void OnFocus() { /* ... */ }
+    private void OnBlur() { /* ... */ }
+    private void OnError(RichTextError e)
+        => Console.WriteLine($""{e.Code}: {e.Message}"");
+}";
+}
